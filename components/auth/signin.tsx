@@ -87,7 +87,7 @@ export default function SigninPage() {
                         Sign In
                     </Button>
                     <div className="mt-4 text-center text-gray-600">
-                        Don't have an account?{' '}
+                        Don&apost have an account?{' '}
                         <Link href="/auth/sign-up">
                             <p className="font-medium text-gray-900">Sign Up</p>
                         </Link>
