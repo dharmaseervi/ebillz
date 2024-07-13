@@ -77,7 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (user) {
                 return {
                     ...token,
-                    id: user.id,
+                    id: (user as CustomUser)._id,
                 };
             }
             return token;
