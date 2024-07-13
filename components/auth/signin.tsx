@@ -27,7 +27,7 @@ export default function SigninPage() {
                 password: user.password,
             });
 
-            if (res.error) {
+            if (res && res.error) {
                 setError(res.error);
                 return;
             }
@@ -40,8 +40,7 @@ export default function SigninPage() {
         }
     };
 
-    const handleEmailSignIn = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleEmailSignIn = async () => {
         await signIn('nodemailer', { email: user.email, callbackUrl: '/' });
     };
 
