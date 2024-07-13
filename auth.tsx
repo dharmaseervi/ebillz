@@ -4,10 +4,14 @@ import UserRegister from "@/modules/userregister";
 import bcrypt from "bcryptjs";
 import connectDB from "@/utils/mongodbConnection";
 import { MongoDBAdapter } from '@auth/mongodb-adapter';
-import ClientPromise from './utils/db'
+import ClientPromise from './utils/db';
 import NodemailerProvider from 'next-auth/providers/nodemailer';
-import sendVerificationRequest from '@/utils/sendVerificationRequest'
+import sendVerificationRequest from '@/utils/sendVerificationRequest';
 
+interface CredentialsType {
+    email: string;
+    password: string;
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -29,8 +33,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             authorize: async (credentials) => {
-                const { email, password } = credentials;
+                const { email, password } = credentials as CredentialsType
 
+                // Ensure MongoDB is connected
                 await connectDB();
 
                 try {
@@ -85,3 +90,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
     },
 });
+
+// Default export for NextAuth
+export default NextAuth;
