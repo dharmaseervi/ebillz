@@ -12,6 +12,9 @@ interface CredentialsType {
     email: string;
     password: string;
 }
+interface CustomUser {
+    _id: string;
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -74,7 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (user) {
                 return {
                     ...token,
-                    id: user._id,
+                    id: user.id,
                 };
             }
             return token;
@@ -84,7 +87,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 ...session,
                 user: {
                     ...session.user,
-                    _id: token.id,
+                    _id: token.id ,
                 },
             };
         },
