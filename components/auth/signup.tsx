@@ -1,11 +1,10 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent, } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-
 
 export default function SignupPage() {
     const [register, setRegister] = useState({
@@ -17,7 +16,7 @@ export default function SignupPage() {
     const [error, setError] = useState('');
 
     // Handle input changes
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setRegister(prevState => ({
             ...prevState,
@@ -26,7 +25,7 @@ export default function SignupPage() {
     };
 
     // Handle form submission
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         try {
             e.preventDefault();
             const res = await fetch("/api/register/", {

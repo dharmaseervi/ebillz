@@ -1,39 +1,52 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent, FocusEvent, MouseEvent } from 'react';
 import CustomerForm from './CustomerForm';
 
+interface Customer {
+    _id: string;
+    fullName: string;
+    // Add more fields as needed
+}
+
+interface FormData {
+    invoiceNumber: string;
+    customerName: string;
+    amount: string;
+    dueDate: string;
+    // Add more fields as needed
+}
 
 export default function Form() {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         invoiceNumber: '',
         customerName: '',
         amount: '',
         dueDate: '',
-        // Add more fields as needed
     });
     const [isFocused, setIsFocused] = useState(false);
+    const [customerSearch, setCustomerSearch] = useState('');
+    const [searchResults, setSearchResults] = useState<Customer[]>([]);
+    const [showAddCustomerForm, setShowAddCustomerForm] = useState(false);
 
     const handleFocus = () => {
         setIsFocused(true);
     };
 
-    const handleBlur = () => {
+    const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
         setTimeout(() => setIsFocused(false), 100); // Delay to allow clicking on the dropdown items
     };
-    const [customerSearch, setCustomerSearch] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [showAddCustomerForm, setShowAddCustomerForm] = useState(false);
 
-    const handleChange = (e) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleCustomerSearch = async (e) => {
+    const handleCustomerSearch = async (e: ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
         setCustomerSearch(value);
-        const res = await fetch("/api/customers");
-        const data = await res.json()
+
+        const res = await fetch(`/api/customers?search=${value}`);
+        const data = await res.json();
 
         if (res.ok) {
             setSearchResults(data.customers);
@@ -41,10 +54,7 @@ export default function Form() {
             console.error('Failed to fetch customers:', data.message || 'Unknown error');
             setSearchResults([]);
         }
-
     };
-    console.log(searchResults);
-
 
     const handleAddNewCustomer = () => {
         setShowAddCustomerForm(true);
@@ -57,7 +67,7 @@ export default function Form() {
         setFormData({ ...formData, customerName: '' }); // Reset customerName field
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         console.log(formData);
@@ -67,7 +77,6 @@ export default function Form() {
             customerName: '',
             amount: '',
             dueDate: '',
-            // Add more fields as needed
         });
     };
 
@@ -107,8 +116,13 @@ export default function Form() {
                                 <li
                                     key={customer._id}
                                     className="px-3 py-2 cursor-pointer hover:bg-gray-100"
-                                    onMouseDown={() => {
-                                        handleChange({ target: { name: 'customerName', value: customer.fullName } });
+                                    onMouseDown={(e) => {
+                                        handleChange({
+                                            target: {
+                                                name: 'customerName',
+                                                value: customer.fullName,
+                                            } as HTMLInputElement,
+                                        } as ChangeEvent<HTMLInputElement>);
                                         setIsFocused(false);
                                     }}
                                 >
