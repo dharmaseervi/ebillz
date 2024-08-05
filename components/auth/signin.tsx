@@ -32,8 +32,10 @@ export default function SigninPage() {
                 return;
             }
 
-            console.log(res, 'res');
-            router.push("/");
+            if (res && res.ok) {
+                console.log(res, 'res');
+                router.push('/');
+            }
         } catch (error) {
             console.error(error);
             setError('An unexpected error occurred.');
@@ -86,7 +88,7 @@ export default function SigninPage() {
                         Sign In
                     </Button>
                     <div className="mt-4 text-center text-gray-600">
-                        Don&apost have an account?{' '}
+                        Don t have an account?{' '}
                         <Link href="/auth/sign-up">
                             <p className="font-medium text-gray-900">Sign Up</p>
                         </Link>

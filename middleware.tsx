@@ -11,7 +11,6 @@ export async function middleware(request: any) {
     const token = await getToken({
         req: request,
         secret,
-        salt,
     });
 
     const privatePaths = ["/dashboard", "/", "/clients", "/expenses", "/invoice", "/items", "/reports", "/settings"]; // Adjusted the path names

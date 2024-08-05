@@ -9,13 +9,13 @@ type LayoutProps = {
 
 export default function Layout({ children }: LayoutProps) {
     return (
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col h-screen overflow-hidden">
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
                 <div className="w-80 flex-none bg-gray-800">
                     <SideNavbar />
                 </div>
-                <div className="flex-1 overflow-auto bg-gray-100 p-4">
+                <div className="flex-1 overflow-auto bg-white">
                     {children}
                 </div>
             </div>
