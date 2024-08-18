@@ -1,14 +1,21 @@
 import connectDB from '../../../utils/mongodbConnection'
 import { NextResponse } from 'next/server'
 import Customer from '../../../modules/customers';
+import { auth } from "@/auth"
 
-export async function POST(request) {
+export async function POST(request: Request) {
     await connectDB();
 
     try {
         const { fullName, email, phone, address, city, state, zip } = await request.json();
         console.log(fullName, email, phone, address, city, state, zip);
 
+        const session = await auth();
+
+        if (!session || !session.user) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' });
+        }
+        const userId = session.user._id;
         // Create a new customer instance
         const newCustomer = new Customer({
             fullName,
@@ -18,6 +25,7 @@ export async function POST(request) {
             city,
             state,
             zip,
+            userId
         });
 
         // Save the new customer to the database
@@ -26,11 +34,11 @@ export async function POST(request) {
         return NextResponse.json({ success: true, customer: savedCustomer });
     } catch (error) {
         console.error('Error creating customer:', error);
-        return NextResponse.error(new Error('Failed to create customer'));
+        return NextResponse.json({ success: false, error: 'Failed to create customer' });
     }
 }
 
-export async function GET(request) {
+export async function GET(request: Request) {
     await connectDB();
 
     try {
@@ -38,36 +46,55 @@ export async function GET(request) {
         const search = searchParams.get('search')?.trim() || '';
         const id = searchParams.get('id');
 
+        // Get the session for the current user
+        const session = await auth();
+        if (!session || !session.user) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' });
+        }
+
+        const userId = session.user._id; // Assuming session.user._id holds the logged-in user ID
+
         let customers;
 
         if (id) {
-            customers = await Customer.findById(id);
-            console.log(customers, 'ids');
-
+            // Fetch customer by ID and ensure it belongs to the logged-in user
+            customers = await Customer.findOne({ _id: id, userId });
         } else if (search) {
+            // Perform a search query on customers that belong to the logged-in user
             customers = await Customer.find({
+                userId,
                 $or: [
                     { fullName: { $regex: search, $options: 'i' } },
                     { email: { $regex: search, $options: 'i' } },
                 ]
             });
         } else {
-            customers = await Customer.find();
+            // Fetch all customers that belong to the logged-in user
+            customers = await Customer.find({ userId });
         }
-        return NextResponse.json({ customers });
+
+        if (!customers) {
+            return NextResponse.json({ success: false, error: 'No customers found' });
+        }
+
+        return NextResponse.json({ success: true, customers });
     } catch (error) {
         console.error('Error fetching customers:', error);
-        return NextResponse.json({ error: 'Error fetching customers' });
+        return NextResponse.json({ success: false, error: 'Error fetching customers' });
     }
 }
-
-export async function PUT(request) {
+export async function PUT(request: Request) {
     await connectDB();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+
+    if (!id) {
+        return NextResponse.json({ success: false, error: 'Customer ID is required' });
+    }
+
     try {
-        const {  fullName, email, phone, address, city, state, zip } = await request.json();
-        console.log( fullName, email, phone, address, city, state, zip);
+        const { fullName, email, phone, address, city, state, zip } = await request.json();
+        console.log(fullName, email, phone, address, city, state, zip);
 
         const updatedCustomer = await Customer.findByIdAndUpdate(
             id,
@@ -76,32 +103,35 @@ export async function PUT(request) {
         );
 
         if (!updatedCustomer) {
-            return NextResponse.error(new Error('Customer not found'));
+            return NextResponse.json({ success: false, error: 'Customer not found' });
         }
 
         return NextResponse.json({ success: true, customer: updatedCustomer });
     } catch (error) {
         console.error('Error updating customer:', error);
-        return NextResponse.error(new Error('Failed to update customer'));
+        return NextResponse.json({ success: false, error: 'Failed to update customer' });
     }
 }
 
-export async function DELETE(request) {
+export async function DELETE(request: Request) {
     await connectDB();
 
     try {
         const { id } = await request.json();
-        console.log(id);
+
+        if (!id) {
+            return NextResponse.json({ success: false, error: 'Customer ID is required' });
+        }
 
         const deletedCustomer = await Customer.findByIdAndDelete(id);
 
         if (!deletedCustomer) {
-            return NextResponse.error(new Error('Customer not found'));
+            return NextResponse.json({ success: false, error: 'Customer not found' });
         }
 
         return NextResponse.json({ success: true, customer: deletedCustomer });
     } catch (error) {
         console.error('Error deleting customer:', error);
-        return NextResponse.error(new Error('Failed to delete customer'));
+        return NextResponse.json({ success: false, error: 'Failed to delete customer' });
     }
 }

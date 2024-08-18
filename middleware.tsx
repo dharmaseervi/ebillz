@@ -3,29 +3,37 @@ import { NextResponse } from "next/server";
 
 export async function middleware(request: any) {
     const path = request.nextUrl.pathname;
-    const secret = process.env.AUTH_SECRET;
-    const salt = process.env.AUTH_SALT || "default_salt"
-    if (!secret) {
-        throw new Error("AUTH_SECRET is not defined in environment variables");
+
+    const secret = process.env.NEXTAUTH_SECRET; // Make sure this is always defined
+    const salt = process.env.JWT_SALT; // Make sure this is always defined as well
+
+    if (!secret || !salt) {
+        throw new Error("NEXTAUTH_SECRET or JWT_SALT is not defined in environment variables");
     }
+
     const token = await getToken({
         req: request,
         secret,
     });
 
-    const privatePaths = ["/dashboard", "/", "/clients", "/expenses", "/invoice", "/items", "/reports", "/settings"]; // Adjusted the path names
+    const privatePaths = ["/dashboard", "/clients", "/expenses", "/invoice", "/items", "/reports", "/settings"];
+    const isPrivatePath = privatePaths.some((privatePath) => path.startsWith(privatePath));
 
-    if (!token && privatePaths.includes(path)) {
+    if (!token && isPrivatePath) {
         return NextResponse.redirect(new URL("/auth/sign-in", request.nextUrl));
     }
+
+    return NextResponse.next();
 }
 
 export const config = {
-    // Matcher for all paths
-    matcher: ({ req }: { req: Request }) => {
-        const privatePaths = ["/dashboard", "/", "/clients", "/expenses", "/invoice", "/items", "/reports", "/settings"];
-        const isPrivatePath = privatePaths.some(path => req.url.startsWith(path));
-        return !req.url.startsWith("/api") && isPrivatePath;
-    },
+    matcher: [
+        "/dashboard/:path*",
+        "/clients/:path*",
+        "/expenses/:path*",
+        "/invoice/:path*",
+        "/items/:path*",
+        "/reports/:path*",
+        "/settings/:path*"
+    ],
 };
-

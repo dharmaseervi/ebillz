@@ -4,7 +4,9 @@ import React from 'react'
 export default function page() {
   return (
     <div>
-      <CustomerForm />
+      <CustomerForm cancel={function (): void {
+        throw new Error('Function not implemented.')
+      } } />
     </div>
   )
 }

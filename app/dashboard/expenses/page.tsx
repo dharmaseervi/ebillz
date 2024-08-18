@@ -122,17 +122,21 @@ const Expenses = () => {
     let sortableExpenses = [...expenses];
     if (sortConfig !== null) {
       sortableExpenses.sort((a, b) => {
-        if (a[sortConfig.key as keyof Expense] < b[sortConfig.key as keyof Expense]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
+        const aValue = a[sortConfig.key as keyof Expense] || ''; // fallback if undefined
+        const bValue = b[sortConfig.key as keyof Expense] || '';
+        
+        if (typeof aValue === 'number' && typeof bValue === 'number') {
+          return sortConfig.direction === 'ascending' ? aValue - bValue : bValue - aValue;
         }
-        if (a[sortConfig.key as keyof Expense] > b[sortConfig.key as keyof Expense]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
+        
+        if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
         return 0;
       });
     }
     return sortableExpenses;
   }, [expenses, sortConfig]);
+  
 
   const filteredExpenses = sortedExpenses.filter(expense =>
     expense.vendor.toLowerCase().includes(search.toLowerCase()) ||

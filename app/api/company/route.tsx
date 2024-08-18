@@ -1,22 +1,48 @@
 import Company from '@/modules/company';
 import connectDB from '@/utils/mongodbConnection';
 import { NextResponse } from 'next/server';
+import { auth } from "@/auth"
 
-export async function POST(request:Request) {
+
+export async function POST(request: Request) {
     await connectDB();
 
+    // Get the session for the current user
+    const session = await auth();
+    
+    if (!session || !session.user) {
+        return NextResponse.json({ success: false, error: 'User not authenticated' });
+    }
+
     try {
+        // Parse the incoming company data
         const companyData = await request.json();
-        const companyNew = new Company(companyData);
+
+        // Add userId to the company data
+        const userId = session.user._id;
+        const companyNew = new Company({ ...companyData, userId });
+
+        // Save the new company data with userId
         await companyNew.save();
+
         return NextResponse.json({ success: true, company: companyNew });
     } catch (error) {
+        console.error('Error creating company:', error);
         return NextResponse.json({ success: false, error: error});
     }
 }
 
-export async function GET(request:Request) {
+export async function GET(request: Request) {
     await connectDB();
+
+    // Get the session for the current user
+    const session = await auth();
+    
+    if (!session || !session.user) {
+        return NextResponse.json({ success: false, error: 'User not authenticated' });
+    }
+
+    const userId = session.user._id;
 
     try {
         const { searchParams } = new URL(request.url);
@@ -24,17 +50,21 @@ export async function GET(request:Request) {
 
         let company;
         if (id) {
-            company = await Company.findById(id);
-            if (!company) throw new Error('Company not found');
+            // Fetch the specific company by its ID and userId
+            company = await Company.findOne({ _id: id, userId });
+            if (!company) throw new Error('Company not found or not authorized');
         } else {
-            company = await Company.find();
+            // Fetch all companies belonging to the logged-in user
+            company = await Company.find({ userId });
         }
 
         return NextResponse.json({ success: true, company });
     } catch (error) {
-        return NextResponse.json({ success: false, error: error});
+        console.error('Error fetching company:', error);
+        return NextResponse.json({ success: false, error: error });
     }
 }
+
 
 export async function PUT(request:Request) {
     await connectDB();

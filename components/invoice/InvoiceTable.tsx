@@ -8,18 +8,29 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { Pagination } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button"; // Assuming you have a Button component
+import { Button } from "@/components/ui/button"; 
+
+
+interface Invoice {
+  id: string;
+  invoiceNumber: number;
+  customerName: string;
+  invoiceDate: string;
+  dueDate: string;
+  totalAmount: number;
+  invoiceStatus: string;
+}
 
 export default function InvoiceTable() {
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState({ key: "id", order: "asc" });
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [search, setSearch] = useState<string>("");
+  const [sort, setSort] = useState<{ key: keyof Invoice, order: "asc" | "desc" }>({ key: "invoiceNumber", order: "asc" });
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
   const router = useRouter();
-
+  
   const fetchInvoices = async () => {
     try {
       const res = await fetch('/api/invoice');
@@ -33,7 +44,7 @@ export default function InvoiceTable() {
         throw new Error(data.error);
       }
     } catch (error) {
-      setError('Fetching error: ' + error.message);
+      setError('Fetching error: ' + error);
     } finally {
       setLoading(false);
     }
@@ -64,22 +75,22 @@ export default function InvoiceTable() {
       .slice((page - 1) * pageSize, page * pageSize);
   }, [search, sort, page, pageSize, invoices]);
 
-  const handleSearch = (e) => setSearch(e.target.value);
-  const handleSort = (key) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
+  const handleSort = (key: keyof Invoice) => {
     if (sort.key === key) {
       setSort({ key, order: sort.order === "asc" ? "desc" : "asc" });
     } else {
       setSort({ key, order: "asc" });
     }
   };
-  const handlePageChange = (page) => setPage(page);
-  const handlePageSizeChange = (size) => setPageSize(size);
+  const handlePageChange = (page: number) => setPage(page);
+  const handlePageSizeChange = (size: number) => setPageSize(size);
 
-  const handleEdit = (id) => {
+  const handleEdit = (id: string) => {
     router.push(`/dashboard/invoices/createinvoice/${id}`);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this invoice?')) {
       try {
         const res = await fetch(`/api/invoice?id=${id}`, {
@@ -95,12 +106,12 @@ export default function InvoiceTable() {
           alert('Error: ' + data.message);
         }
       } catch (error) {
-        alert('Error: ' + error.message);
+        alert('Error: ' + error);
       }
     }
   };
 
-  const handlePrint = (id) => {
+    const handlePrint = (id: string) => {
     router.push(`/dashboard/invoices/${id}`);
   };
 

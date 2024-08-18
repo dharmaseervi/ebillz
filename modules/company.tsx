@@ -1,4 +1,3 @@
-// models/Company.js
 import mongoose from 'mongoose';
 
 const CompanySchema = new mongoose.Schema({
@@ -8,8 +7,13 @@ const CompanySchema = new mongoose.Schema({
   state: { type: String, required: true },
   zip: { type: String, required: true },
   contactNumber: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  gstNumber: { type: String, required: true, unique: true },
+  email: { type: String, required: true },
+  gstNumber: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
+
+// Compound indexes to ensure email and gstNumber are unique for each user
+CompanySchema.index({ email: 1, userId: 1 }, { unique: true });
+CompanySchema.index({ gstNumber: 1, userId: 1 }, { unique: true });
 
 export default mongoose.models.Company || mongoose.model('Company', CompanySchema);

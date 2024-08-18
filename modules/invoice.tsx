@@ -10,6 +10,7 @@ export interface IInvoice extends Document {
     items: Types.ObjectId[];
     invoiceStatus: string;
     totalAmount: Number;
+    userId:Types.ObjectId;
 }
 
 const invoiceSchema = new Schema<IInvoice>({
@@ -20,7 +21,9 @@ const invoiceSchema = new Schema<IInvoice>({
     dueDate: { type: Date, required: true },
     items: [{ type: Schema.Types.ObjectId, ref: 'InvoiceItem' }],
     invoiceStatus: { type: String, enum: ['paid', 'not paid', 'pending'], default: 'not paid' },
-    totalAmount: { type: Number, required: true }
+    totalAmount: { type: Number, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 export default mongoose.models?.Invoice || mongoose.model<IInvoice>('Invoice', invoiceSchema);
+ 

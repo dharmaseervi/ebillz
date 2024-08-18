@@ -1,26 +1,62 @@
 import Expense from '@/modules/expenses';
 import connectDB from '../../../utils/mongodbConnection';
-
+import { auth } from "@/auth"
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 
-export async function GET(request:Request) {
+export async function GET(request: Request) {
   await connectDB();
 
   try {
-    const expenses = await Expense.find();
+    // Get the session for the current user
+    const session = await auth();
+
+    if (!session || !session.user) {
+      return NextResponse.json({ success: false, error: 'User not authenticated' });
+    }
+
+    const userId = session.user._id; // Retrieve the user ID from the session
+
+    // Fetch expenses that belong to the authenticated user
+    const expenses = await Expense.find({ userId });
+
+    // Return the filtered list of expenses
     return NextResponse.json({ success: true, expenses });
   } catch (error) {
     console.error('Error fetching expenses:', error);
+
+    // Return an error response in case of failure
     return NextResponse.json({ success: false, error: 'Error fetching expenses' });
   }
 }
 
-export async function POST(request:Request) {
+export async function POST(request: Request) {
   await connectDB();
+
+  const session = await auth()
+
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'User not authenticated' });
+  }
 
   try {
     const { amount, date, category, vendor, notes } = await request.json();
-    const newExpense = new Expense({ amount, date, category, vendor, notes });
+    const userId = session?.user?._id;
+    const id = mongoose.Types.ObjectId.createFromHexString(userId)
+    console.log(id);
+
+    const newExpense = new Expense({
+      amount,
+      date,
+      category,
+      vendor,
+      notes,
+      userId:id,
+    });
+
+    console.log("New Expense before saving:", newExpense);  // Debug log
+
+
     await newExpense.save();
     return NextResponse.json({ success: true, expense: newExpense });
   } catch (error) {
@@ -28,8 +64,7 @@ export async function POST(request:Request) {
     return NextResponse.json({ success: false, error: 'Error creating expense' });
   }
 }
-
-export async function PUT(request:Request) {
+export async function PUT(request: Request) {
   await connectDB();
 
   try {
@@ -52,7 +87,7 @@ export async function PUT(request:Request) {
   }
 }
 
-export async function DELETE(request:Request) {
+export async function DELETE(request: Request) {
   await connectDB();
 
   try {

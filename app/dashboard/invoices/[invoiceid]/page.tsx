@@ -2,12 +2,13 @@
 import React, { useEffect, useRef } from "react";
 import Previewandprint from "@/components/invoice/previewandprint";
 import { useReactToPrint } from 'react-to-print';
-import { Button } from "@/components/ui/button"; // Assuming you have a Button component
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 export default function PrintPage({ params }) {
   const { invoiceid } = params;
+  console.log(invoiceid);
+  
   const componentRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({

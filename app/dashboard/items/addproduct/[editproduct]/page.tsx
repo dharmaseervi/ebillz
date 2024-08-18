@@ -75,7 +75,7 @@ const UpdateProductForm: React.FC<UpdateProductFormProps> = ({ params, onCancel 
             if (!res.ok) throw new Error('Failed to update product');
             console.log(res);
 
-            // router.push('/dashboard/items');
+            router.push('/dashboard/items');
         } catch (error) {
             console.error('Error updating product:', error);
         }

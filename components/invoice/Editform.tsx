@@ -3,6 +3,7 @@ import React, { useState, useEffect, ChangeEvent, useCallback } from 'react';
 import CustomerForm from './CustomerForm';
 import debounce from 'lodash.debounce';
 import { Input } from '@/components/ui/input';
+import { useSession } from 'next-auth/react';
 import {
     Table,
     TableBody,
@@ -58,6 +59,7 @@ interface FormData {
     invoiceDate: string;
     dueDate: string;
     items: Row[];
+    totalAmount: number,
 }
 
 function formatDate(date: Date): string {
@@ -68,13 +70,15 @@ function formatDate(date: Date): string {
 }
 
 const EditInvoiceForm: React.FC = ({ invoiceId }) => {
-
+    const session = useSession()
+    const userId = session?.data?.user?._id || '';
     const [formData, setFormData] = useState<FormData>({
         invoiceNumber: 0,
         customerName: '',
         invoiceDate: formatDate(new Date()),
         dueDate: '',
         items: [],
+        totalAmount: 0,
     });
     const [isFocused, setIsFocused] = useState(false);
     const [customerSearch, setCustomerSearch] = useState('');
@@ -253,7 +257,9 @@ const EditInvoiceForm: React.FC = ({ invoiceId }) => {
         const updatedFormData = {
             ...formData,
             items: rows,
+            userId,
             dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
+            totalAmount: invoiceData.totalAmount,
         };
         try {
             // Update invoice

@@ -2,6 +2,19 @@ import invoice, { IInvoice } from '@/modules/invoice';
 import InvoiceItem, { IInvoiceItem } from '@/modules/InvoiceItem';
 import connectDB from '@/utils/mongodbConnection';
 import { NextResponse } from 'next/server';
+import { auth } from "@/auth"
+import mongoose from 'mongoose';
+// Helper function to parse date from DD/MM/YYYY to YYYY-MM-DD
+function parseDate(dateString: string) {
+    const [day, month, year] = dateString.split('/');
+    // Log if dateString is invalid
+    if (!day || !month || !year) {
+        console.log('Invalid date string:', dateString);
+        return null;
+    }
+    // Returns the formatted date in YYYY-MM-DD
+    return `${year}-${month}-${day}`;
+}
 
 export async function POST(request: Request) {
     await connectDB();
@@ -9,56 +22,104 @@ export async function POST(request: Request) {
     try {
         const { invoiceNumber, customerName, customerId, invoiceDate, dueDate, items, totalAmount } = await request.json();
 
+        const parsedInvoiceDate = parseDate(invoiceDate);
+
+        // Get session data
+        const session = await auth();
+        if (!session || !session.user) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' });
+        }
+
+        const userId = session?.user?._id;
+        const id = mongoose.Types.ObjectId.createFromHexString(userId)
+
+
+        console.log(id, 'from user id to invoice');
+
+        // Validate invoiceDate
+        if (!parsedInvoiceDate || isNaN(new Date(parsedInvoiceDate).getTime())) {
+            return NextResponse.json({ success: false, error: 'Invalid invoice date format' });
+        }
+
+        // Validate dueDate
+        const parsedDueDate = new Date(dueDate);
+        if (isNaN(parsedDueDate.getTime())) {
+            return NextResponse.json({ success: false, error: 'Invalid due date format' });
+        }
+
+        // Save each item and store its ID
         const invoiceItems = await Promise.all(
             items.map(async (item: IInvoiceItem) => {
-                const newItem = new InvoiceItem(item);
+                const newItem = new InvoiceItem({ ...item, userId });
                 await newItem.save();
                 return newItem._id;
             })
         );
 
-        const Invoice: IInvoice = new invoice({
+        // Create new invoice with userId
+        const newInvoice: IInvoice = new invoice({
             invoiceNumber,
             customerName,
             customerId,
-            invoiceDate: new Date(invoiceDate),
-            dueDate: new Date(dueDate),
+            invoiceDate: new Date(parsedInvoiceDate),
+            dueDate: parsedDueDate,
             items: invoiceItems,
-            totalAmount
+            totalAmount,
+            userId: id
         });
-        await Invoice.save();
-        return NextResponse.json({ success: true, invoiceId: Invoice._id });
+
+        // Save the invoice
+        await newInvoice.save();
+
+        return NextResponse.json({ success: true, invoiceId: newInvoice._id });
     } catch (error) {
+        console.error('Error saving invoice:', error);
         return NextResponse.json({ success: false, error: error });
     }
-
 }
 
 export async function GET(request: Request) {
     await connectDB();
 
+    // Get session data
+    const session = await auth();
+    if (!session || !session.user) {
+        return NextResponse.json({ success: false, error: 'User not authenticated' });
+    }
+
+    const userId = session?.user?._id;
+    const id = new URL(request.url).searchParams.get('id');
+    let invoices;
+
     try {
-        const url = new URL(request.url);
-        const id = url.searchParams.get('id');
-        console.log(id, 'ids');
+        if (id) {
+            // Fetch a specific invoice for the logged-in user by userId and invoiceId
+            invoices = await invoice
+                .findOne({ _id: id, userId })
+                .populate('customerId')
+                .populate('items')
+                .exec();
 
-        if (!id) {
-            const invoiceData = await invoice.find()
-            return NextResponse.json({ success: true, invoice: invoiceData });
+            if (!invoices) {
+                return NextResponse.json({ success: false, message: 'Invoice not found or not authorized' });
+            }
+        } else {
+            // Fetch all invoices for the logged-in user
+            invoices = await invoice
+                .find({ userId })
+                .populate('customerId')
+                .populate('items')
+                .exec();
         }
 
-        const invoiceData = await invoice.findById(id).populate('items').exec();
-
-        if (!invoiceData) {
-            return NextResponse.json({ success: false, error: 'Invoice not found' });
-        }
-
-        return NextResponse.json({ success: true, invoice: invoiceData });
+        return NextResponse.json({ success: true, invoice: invoices });
     } catch (error) {
         console.error('Error fetching invoice:', error);
-        return NextResponse.json({ success: false, error: 'Error fetching invoice' });
+        return NextResponse.json({ success: false, message: 'Error fetching invoice' });
     }
 }
+
+
 
 export async function DELETE(request: Request) {
     await connectDB();
@@ -93,7 +154,7 @@ export async function PUT(request: Request) {
             customerId,
             invoiceDate,
             dueDate,
-            items = [],  
+            items = [],
             invoiceStatus,
             totalAmount,
         } = await request.json();

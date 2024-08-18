@@ -1,23 +1,29 @@
-// models/purchaseOrder.js
-import mongoose from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
-const PurchaseOrderSchema = new mongoose.Schema({
-  vendor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Vendor',
-    required: true,
-  },
-  items: [
-    {
-      itemName: { type: String, required: true },
-      quantity: { type: Number, required: true },
-      unitPrice: { type: Number, required: true },
-      totalPrice: { type: Number, required: true },
-    },
-  ],
-  orderDate: { type: Date, default: Date.now },
-  deliveryDate: { type: Date, required: true },
-  status: { type: String, enum: ['Pending', 'Completed', 'Cancelled'], default: 'Pending' },
+export interface IPurchaseInvoice extends Document {
+    invoiceNumber: Number;
+    purchaseOrderNumber: Number;
+    supplierName: string;
+    supplierId: Types.ObjectId;
+    purchaseDate: Date;
+    dueDate: Date;
+    items: Types.ObjectId[];
+    invoiceStatus: string;
+    totalAmount: Number;
+    userId:Types.ObjectId;
+}
+
+const purchaseInvoiceSchema = new Schema<IPurchaseInvoice>({
+    invoiceNumber: { type: Number, required: true },
+    purchaseOrderNumber: { type: Number, required: true },
+    supplierName: { type: String, required: true },
+    supplierId: { type: Schema.Types.ObjectId, ref: 'Supplier', required: true },
+    purchaseDate: { type: Date, required: true },
+    dueDate: { type: Date, required: true },
+    items: [{ type: Schema.Types.ObjectId, ref: 'InvoiceItem' }],
+    invoiceStatus: { type: String, enum: ['paid', 'not paid', 'pending'], default: 'not paid' },
+    totalAmount: { type: Number, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
-export default mongoose.models.PurchaseOrder || mongoose.model('PurchaseOrder', PurchaseOrderSchema);
+export default mongoose.models?.PurchaseInvoice || mongoose.model<IPurchaseInvoice>('PurchaseInvoice', purchaseInvoiceSchema);

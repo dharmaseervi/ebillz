@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 // Define the structure of the Product document
 export interface ProductDocument extends Document {
@@ -8,6 +8,7 @@ export interface ProductDocument extends Document {
     sellingPrice: number;
     quantity: number;
     description: string;
+    userId:Types.ObjectId;
 }
 
 // Define the schema for the Product document
@@ -18,6 +19,7 @@ const ProductSchema: Schema<ProductDocument> = new Schema({
     sellingPrice: { type: Number, required: true },
     quantity: { type: Number, required: true },
     description: { type: String, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 // Export the Product model based on ProductDocument

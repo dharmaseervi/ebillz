@@ -1,25 +1,24 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
+interface Customer {
+    fullName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+}
+
 interface CustomerFormProps {
-    customer: {
-        _id: string;
-        fullName: string;
-        email: string;
-        phone: string;
-        address: string;
-        city: string;
-        state: string;
-        zip: string;
-    };
     cancel: () => void;
+    params: { editcustomer: string }; 
 }
 
 export default function UpdateCustomerForm({ params, cancel }: CustomerFormProps) {
     const { editcustomer } = params;
-    const [customer, setCusomer] = useState()
-
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<Customer>({
         fullName: "",
         email: "",
         phone: "",
@@ -31,34 +30,22 @@ export default function UpdateCustomerForm({ params, cancel }: CustomerFormProps
 
     useEffect(() => {
         const fetchCustomer = async () => {
-          try {
-            const res = await fetch(`/api/customers?id=${editcustomer}`);
-            const data = await res.json();
-            if (res.ok && data.customers) {
-              setFormData(data.customers);
-            } else {
-              console.error("Failed to fetch customer");
+            try {
+                const res = await fetch(`/api/customers?id=${editcustomer}`);
+                const data = await res.json();
+                if (res.ok && data.customers) {
+                    setFormData(data.customers);
+                } else {
+                    console.error("Failed to fetch customer");
+                }
+            } catch (error) {
+                console.error("Error fetching customer:", error);
             }
-          } catch (error) {
-            console.error("Error fetching customer:", error);
-          } 
         };
         fetchCustomer();
-      }, []);
-
-    useEffect(() => {
-        if (customer) {
-            setFormData({
-                fullName: customer.fullName || "",
-                email: customer.email || "",
-                phone: customer.phone || "",
-                address: customer.address || "",
-                city: customer.city || "",
-                state: customer.state || "",
-                zip: customer.zip || "",
-            });
-        }
     }, []);
+
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;

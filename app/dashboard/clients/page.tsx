@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -12,18 +12,26 @@ import {
 import {
   Table, TableHeader, TableRow, TableHead, TableBody, TableCell
 } from "@/components/ui/table";
-import { Pagination } from "@/components/ui/pagination";
+import { PaginationContent, PaginationItem, PaginationNext, PaginationPrevious, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
+
+interface Customer {
+  _id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  city: string;
+}
 
 export default function Clients() {
   const router = useRouter();
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState({ key: "id", order: "asc" });
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [customer, setCustomer] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [search, setSearch] = useState<string>("");
+  const [sort, setSort] = useState<{ key: keyof Customer, order: "asc" | "desc" }>({ key: "fullName", order: "asc" });
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
   const handleAddProduct = () => {
     router.push('/dashboard/clients/addcustomers');
@@ -34,15 +42,13 @@ export default function Clients() {
       const res = await fetch('/api/customers');
       if (!res.ok) throw new Error('Failed to fetch customers');
       const data = await res.json();
-      console.log(data, 'customers fetched');
-
       if (data) {
-        setCustomer(data.customers);
+        setCustomers(data.customers);
       } else {
         throw new Error(data.error);
       }
     } catch (error) {
-      setError('Fetching error: ' + error.message);
+      setError('Fetching error: ' + error);
     } finally {
       setLoading(false);
     }
@@ -53,7 +59,7 @@ export default function Clients() {
   }, []);
 
   const filteredCustomers = useMemo(() => {
-    return customer
+    return customers
       .filter((customer) => {
         const searchValue = search.toLowerCase();
         return (
@@ -71,20 +77,32 @@ export default function Clients() {
         }
       })
       .slice((page - 1) * pageSize, page * pageSize);
-  }, [search, sort, page, pageSize, customer]);
+  }, [search, sort, page, pageSize, customers]);
 
-  const handleSearch = (e) => setSearch(e.target.value);
-  const handleSort = (key) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
+
+  const handleSort = (key: keyof Customer) => {
     if (sort.key === key) {
       setSort({ key, order: sort.order === "asc" ? "desc" : "asc" });
     } else {
       setSort({ key, order: "asc" });
     }
   };
-  const handlePageChange = (page) => setPage(page);
-  const handlePageSizeChange = (size) => setPageSize(size);
 
-  const handleDelete = async (id) => {
+  const totalPages = Math.ceil(customers.length / pageSize);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setPage(1);  // Reset to first page on page size change
+  };
+
+  const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`/api/customers`, {
         method: 'DELETE',
@@ -98,21 +116,18 @@ export default function Clients() {
       const data = await res.json();
 
       if (data.success) {
-        setCustomer((prevCustomers) => prevCustomers.filter((customer) => customer._id !== id));
+        setCustomers((prevCustomers) => prevCustomers.filter((customer) => customer._id !== id));
       } else {
         throw new Error(data.error);
       }
     } catch (error) {
-      setError('Delete error: ' + error.message);
+      setError('Delete error: ' + error);
     }
   };
 
-  const handleEdit = (id) => {
+  const handleEdit = (id: string) => {
     router.push(`/dashboard/clients/addcustomers/${id}`);
   };
-
-
-  console.log(customer);
 
   return (
     <div className='p-4'>
@@ -130,17 +145,21 @@ export default function Clients() {
               <Input placeholder="Search customers..." value={search} onChange={handleSearch} className="max-w-xs" />
               <div className="flex items-center gap-2">
                 <Label htmlFor="page-size">Show</Label>
-                <Select id="page-size" value={pageSize} onValueChange={handlePageSizeChange}>
+                <Select
+                  value={String(pageSize)}  // Ensure the value is a string
+                  onValueChange={(value) => handlePageSizeChange(Number(value))} // Convert to number here
+                >
                   <SelectTrigger className="w-24">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={10}>10</SelectItem>
-                    <SelectItem value={20}>20</SelectItem>
-                    <SelectItem value={50}>50</SelectItem>
-                    <SelectItem value={100}>100</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
                   </SelectContent>
                 </Select>
+
                 <Label htmlFor="page-size">entries</Label>
               </div>
             </div>
@@ -183,14 +202,24 @@ export default function Clients() {
             </Table>
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
-                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, customer.length)} of {customer.length} entries
+                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, customers.length)} of {customers.length} entries
               </div>
-              <Pagination
-                currentPage={page}
-                pageSize={pageSize}
-                totalItems={customer.length}
-                onPageChange={handlePageChange}
-              />
+              <div className="flex justify-center">
+                <PaginationPrevious onClick={() => handlePageChange(page - 1)} />
+                <PaginationContent>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        isActive={i + 1 === page}
+                        onClick={() => handlePageChange(i + 1)}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                </PaginationContent>
+                <PaginationNext onClick={() => handlePageChange(page + 1)} />
+              </div>
             </div>
           </CardContent>
         </Card>

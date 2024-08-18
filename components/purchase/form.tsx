@@ -1,6 +1,5 @@
-'use client'
+'use client';
 import React, { useState, ChangeEvent, useEffect, useCallback } from 'react';
-import CustomerForm from './CustomerForm';
 import debounce from 'lodash.debounce';
 import { Input } from '@/components/ui/input';
 import {
@@ -19,11 +18,12 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import SupplierForm from '../suppliers/forms';
 
-interface Customer {
+interface Supplier {
+    name: string;
     _id: string;
-    fullName: string;
+    supplierName: string;
     address: string;
     city: string;
     state: string;
@@ -33,14 +33,17 @@ interface Customer {
 }
 
 interface Item {
+    sellingPrice: number;
+    _id: string | undefined;
     name: string;
     hsnCode: number;
-    sellingPrice: number;
+    purchasePrice: number;
     description: string;
     unit: string;
 }
 
 interface Row {
+    _id?: string; // Optional _id field for items that are fetched from the database
     itemDetails: string;
     hsn: number;
     quantity: number;
@@ -50,14 +53,14 @@ interface Row {
     amount: number;
     desc: string;
     unit: string;
-    itemId:string
 }
 
 interface FormData {
-    invoiceNumber: number;
-    customerName: string;
-    customerId?: string;
-    invoiceDate: string;
+    purchaseOrderNumber: number;
+    purchaseInvoiceNumber: string;
+    supplierName: string;
+    supplierId?: string;
+    purchaseDate: string;
     dueDate: string;
     items: Row[];
     totalAmount: number;
@@ -73,68 +76,68 @@ function formatDate(date: Date): string {
 const currentDate = new Date();
 const formattedDate = formatDate(currentDate);
 
-export default function Form() {
-    const session = useSession()
-    const userId = session?.data?.user?._id || '';
+export default function PurchaseForm() {
     const [formData, setFormData] = useState<FormData>({
-        invoiceNumber: 0,
-        customerName: '',
-        invoiceDate: formattedDate,
+        purchaseOrderNumber: 0,
+        purchaseInvoiceNumber: '',
+        supplierName: '',
+        purchaseDate: formattedDate,
         dueDate: '',
         items: [],
         totalAmount: 0,
     });
     const [isFocused, setIsFocused] = useState(false);
-    const [customerSearch, setCustomerSearch] = useState('');
-    const [searchResults, setSearchResults] = useState<Customer[]>([]);
-    const [showAddCustomerForm, setShowAddCustomerForm] = useState(false);
+    const [supplierSearch, setSupplierSearch] = useState('');
+    const [searchResults, setSearchResults] = useState<Supplier[]>([]);
+    const [showAddSupplierForm, setShowAddSupplierForm] = useState(false);
     const [rows, setRows] = useState<Row[]>([
-        { itemDetails: '', itemId: '', hsn: 0, quantity: 1, rate: 0, discount: 0, tax: 18, amount: 0, desc: '', unit: '' },
+        { itemDetails: '', hsn: 0, quantity: 1, rate: 0, discount: 0, tax: 18, amount: 0, desc: '', unit: '' },
     ]);
     const [itemSearchResults, setItemSearchResults] = useState<Item[]>([]);
     const [activeRowIndex, setActiveRowIndex] = useState<number | null>(null);
-    const [customerAddress, setCustomerAddress] = useState('');
+    const [supplierAddress, setSupplierAddress] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [invoiceData, setInvoiceData] = useState({
+    const [purchaseData, setPurchaseData] = useState({
         totalAmount: 0,
         cgst: 0,
         sgst: 0,
     });
-    const [customerDetails, setCustomerDetails] = useState<Item[]>([]);
-    const [quantityError, setQuantityError] = useState<string | null>(null);
+    const [supplierDetails, setSupplierDetails] = useState<Supplier | null>(null);
     const router = useRouter();
 
     useEffect(() => {
-        setFormData({ ...formData, items: rows, totalAmount: invoiceData.totalAmount });
-    }, [rows, invoiceData.totalAmount]);
+        setFormData({ ...formData, items: rows, totalAmount: purchaseData.totalAmount });
+    }, [rows, purchaseData.totalAmount]);
 
     useEffect(() => {
-        fetchLastInvoiceNumber();
+        fetchLastPurchaseOrderNumber();
     }, []);
 
-    const fetchLastInvoiceNumber = async () => {
+    const fetchLastPurchaseOrderNumber = async () => {
         try {
-            const res = await fetch('/api/lastinvoice');
+            const res = await fetch('/api/lastpurchaseinvoice');
             const data = await res.json();
-
-
+            console.log(data);
             if (data.success) {
                 setFormData((prevFormData) => ({
                     ...prevFormData,
-                    invoiceNumber: data.latestInvoiceNumber + 1,
-                }));
+                    purchaseOrderNumber: data.latestPurchaseInvoiceNumber != null ? data.latestPurchaseInvoiceNumber + 1 : 1,
+                }))
             } else {
-                setError('Failed to fetch the latest invoice number');
+                setError('Failed to fetch the latest purchase order number');
             }
         } catch (error) {
-            setError('Error fetching the latest invoice number');
+            setError('Error fetching the latest purchase order number');
         }
     };
 
     const handleAddRow = () => {
-        setRows([...rows, { itemDetails: '', itemId: '', hsn: 0, quantity: 1, rate: 0, discount: 0, tax: 18, amount: 0, desc: '', unit: '' }]);
+        setRows([
+            ...rows,
+            { itemDetails: '', hsn: 0, quantity: 1, rate: 0, discount: 0, tax: 18, amount: 0, desc: '', unit: '' },
+        ]);
     };
 
     const handleRemoveRow = (index: number) => {
@@ -149,6 +152,7 @@ export default function Form() {
         const taxAmount = totalBeforeTax * (row.tax / 100);
         return totalBeforeTax + taxAmount;
     };
+
 
     const calculateTotalAmount = () => {
         let total = 0;
@@ -167,7 +171,7 @@ export default function Form() {
         const cgst = totalTax / 2;
         const sgst = totalTax / 2;
 
-        setInvoiceData({
+        setPurchaseData({
             totalAmount: total,
             cgst,
             sgst,
@@ -181,20 +185,6 @@ export default function Form() {
     const handleChangeRow = (index: number, e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
         const { name, value } = e.target;
         const newRows = [...rows];
-        console.log(newRows);
-        
-
-        if (name === 'quantity') {
-            const enteredQuantity = parseFloat(value);
-            const selectedItem = itemSearchResults.find(item => item._id === newRows[index].itemId);
-            if (selectedItem && enteredQuantity > selectedItem.quantity) {
-                setQuantityError(`Quantity exceeds available stock (${selectedItem.quantity})`);
-                return;
-            } else {
-                setQuantityError(null); // Clear the error if the quantity is valid
-            }
-        }
-
         newRows[index] = {
             ...newRows[index],
             [name]: name === 'quantity' || name === 'rate' || name === 'discount' || name === 'tax' ? parseFloat(value) : value,
@@ -214,68 +204,101 @@ export default function Form() {
         setFormData({ ...formData, [name]: value });
     };
 
-    const fetchCustomer = useCallback(
+    const fetchSupplier = useCallback(
         debounce(async (value: string) => {
             try {
-                const res = await fetch(`/api/customers?search=${value}`);
+                const res = await fetch(`/api/suppliers?search=${value}`);
                 const data = await res.json();
 
                 if (res.ok) {
-                    setSearchResults(data.customers);
+                    setSearchResults(data.supplier);
                 } else {
-                    console.error('Failed to fetch customers:', data.message || 'Unknown error');
+                    console.error('Failed to fetch suppliers:', data.message || 'Unknown error');
                     setSearchResults([]);
                 }
             } catch (error) {
-                console.error('Failed to fetch customers:', error);
+                console.error('Failed to fetch suppliers:', error);
                 setSearchResults([]);
             }
         }, 300),
         []
     );
 
-    const handleCustomerSearch = async (e: ChangeEvent<HTMLInputElement>) => {
+    const handleSupplierSearch = async (e: ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
-        setCustomerSearch(value);
-        fetchCustomer(value);
+        setSupplierSearch(value);
+        fetchSupplier(value);
     };
 
-    const handleSelectCustomer = (customer: Customer) => {
+    const handleSelectSupplier = (supplier: Supplier) => {
         setFormData({
             ...formData,
-            customerName: customer.fullName,
-            customerId: customer._id,
+            supplierName: supplier.name,
+            supplierId: supplier._id,
         });
-        setCustomerAddress(`${customer.address}, ${customer.city}, ${customer.state}, ${customer.zip}`);
-        setCustomerDetails(customer);
+        setSupplierAddress(`${supplier.address}, ${supplier.city}, ${supplier.state}, ${supplier.zip}`);
+        setSupplierDetails(supplier);
         setSearchResults([]);
     };
 
-    const handleAddNewCustomer = () => {
-        setShowAddCustomerForm(true);
-        setCustomerSearch('');
+    const handleAddNewSupplier = () => {
+        setShowAddSupplierForm(true);
+        setSupplierSearch('');
         setSearchResults([]);
     };
 
-    const handleCancelAddCustomer = () => {
-        setShowAddCustomerForm(false);
-        setFormData({ ...formData, customerName: '' });
+    const handleCancelAddSupplier = () => {
+        setShowAddSupplierForm(false);
+        setFormData({ ...formData, supplierName: '' });
+    };
+
+    const handleSuccess = () => {
+        setShowAddSupplierForm(false)
+    };
+
+
+    const convertToDate = (dateString: string) => {
+        const [day, month, year] = dateString.split('/');
+        return `${year}-${month}-${day}`;
     };
 
     const handleSubmit = async () => {
         setLoading(true);
         setError(null);
 
+
+        // Convert purchase date if in DD/MM/YYYY format
+        const purchaseDateFormatted = formData.purchaseDate.includes('/')
+            ? convertToDate(formData.purchaseDate)
+            : formData.purchaseDate;
+
+        const purchaseDate = new Date(purchaseDateFormatted);
+        const dueDate = new Date(formData.dueDate);
+
+        // Check if the dates are valid
+        if (isNaN(purchaseDate.getTime())) {
+            setError('Invalid purchase date');
+            setLoading(false);
+            return;
+        }
+
+        if (isNaN(dueDate.getTime())) {
+            setError('Invalid due date');
+            setLoading(false);
+            return;
+        }
+
         const updatedFormData = {
             ...formData,
+            purchaseDate: purchaseDate.toISOString(),
+            dueDate: dueDate.toISOString(),
             items: rows,
-            userId,
-            dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
-            totalAmount: invoiceData.totalAmount,
+            totalAmount: purchaseData.totalAmount,
         };
 
+
         try {
-            const res = await fetch('/api/invoice', {
+            const res = await fetch('/api/purchase', {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -283,39 +306,53 @@ export default function Form() {
                 body: JSON.stringify(updatedFormData),
             });
 
-            const updates = rows.map(row => ({ ...row, action: 'decrement' }))
-            const itemsRes = await fetch(`/api/items`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ updates }),
-            });
             if (!res.ok) {
                 const errorData = await res.json();
                 throw new Error(errorData.error || 'Something went wrong');
             }
 
             const data = await res.json();
-            console.log(data);
 
-            // Get the new invoice ID from the response
-            const newInvoiceId = data.invoiceId;
-            console.log(newInvoiceId, 'invoicre od');
 
-            router.push(`/dashboard/invoices/${newInvoiceId}`);
+            // Update inventory with purchased items
+            const updatedItems = updatedFormData.items.map(item => ({
+                ...item,
+                action: 'increment', // Add action as part of each item object
+            }));
+            
+            const itemsRes = await fetch(`/api/items`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ updates: updatedItems }), // Wrap the array in an "updates" key
+            });
+            
+
+            if (!itemsRes.ok) {
+                const errorData = await itemsRes.json();
+                throw new Error(errorData.error || 'Failed to update inventory');
+            }
+
+
+            // Get the new purchase order ID from the response
+            const newPurchaseOrderId = data.purchaseOrderId;
+            // router.push(`/dashboard/purchaseorders/${newPurchaseOrderId}`);
 
             setFormData({
-                invoiceNumber: 0,
-                customerName: '',
-                invoiceDate: formatDate(new Date()),
+                purchaseOrderNumber: 0,
+                purchaseInvoiceNumber: '',
+                supplierName: '',
+                purchaseDate: formatDate(new Date()),
                 dueDate: '',
                 items: [],
                 totalAmount: 0,
             });
 
-            setCustomerAddress('');
-            setRows([{ itemDetails: '', itemId: '', hsn: 0, quantity: 1, rate: 0, discount: 0, tax: 18, amount: 0, desc: '', unit: '' }]);
+            setSupplierAddress('');
+            setRows([
+                { itemDetails: '', hsn: 0, quantity: 1, rate: 0, discount: 0, tax: 18, amount: 0, desc: '', unit: '' },
+            ]);
 
             setSuccess(true);
             setTimeout(() => {
@@ -330,16 +367,19 @@ export default function Form() {
 
     const handleCancel = () => {
         setFormData({
-            invoiceNumber: 0,
-            customerName: '',
-            invoiceDate: formatDate(new Date()),
+            purchaseOrderNumber: 0,
+            purchaseInvoiceNumber: '',
+            supplierName: '',
+            purchaseDate: formatDate(new Date()),
             dueDate: '',
             items: [],
             totalAmount: 0,
         });
 
-        setCustomerAddress('');
-        setRows([{ itemDetails: '', itemId: '', hsn: 0, quantity: 1, rate: 0, discount: 0, tax: 18, amount: 0, desc: '', unit: '' }]);
+        setSupplierAddress('');
+        setRows([
+            { itemDetails: '', hsn: 0, quantity: 1, rate: 0, discount: 0, tax: 18, amount: 0, desc: '', unit: '' },
+        ]);
     };
 
     const fetchItemSearchResults = useCallback(
@@ -376,12 +416,13 @@ export default function Form() {
         }
     };
 
+
     const handleSelectItem = (index: number, item: Item) => {
         const newRows = [...rows];
         newRows[index] = {
             ...newRows[index],
+            _id: item._id, // Include the _id from the itemSearchResults
             itemDetails: item.name,
-            itemId: item._id,
             hsn: item.hsnCode,
             quantity: 1,
             rate: item.sellingPrice,
@@ -401,92 +442,92 @@ export default function Form() {
     };
 
     const handlePrint = () => {
-        router.push('/dashboard/invoices/previewandprint');
+        router.push('/dashboard/purchaseorders/previewandprint');
     };
 
     return (
         <div className="max-w-full mx-auto p-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">Create Invoice</h2>
+            <h2 className="text-3xl font-bold mb-6 text-gray-800">Create Purchase Order</h2>
             <div className="space-y-2">
                 <div className="grid gap-6 max-w-sm">
                     <div className="">
                         <div className="relative">
-                            <label htmlFor="customerName" className="block font-medium">Customer Name</label>
+                            <label htmlFor="supplierName" className="block font-medium">Supplier Name</label>
                             <Input
                                 type="text"
-                                name="customerName"
-                                value={customerSearch}
-                                onChange={handleCustomerSearch}
+                                name="supplierName"
+                                value={supplierSearch}
+                                onChange={handleSupplierSearch}
                                 className="w-full border border-gray-300 p-2 rounded"
                                 onBlur={() => setTimeout(() => setIsFocused(false), 100)}
-                                autoComplete='off'
+                                autoComplete="off"
                             />
-                            {searchResults.length > 0 && (
-                                <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded shadow-lg">
-                                    {searchResults.map((customer) => (
+                            {searchResults?.length > 0 && (
+                                <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-2 rounded shadow-lg">
+                                    {searchResults.map((supplier) => (
                                         <li
-                                            key={customer._id}
-                                            onClick={() => handleSelectCustomer(customer)}
+                                            key={supplier._id}
+                                            onClick={() => handleSelectSupplier(supplier)}
                                             className="p-2 cursor-pointer hover:bg-gray-100"
                                         >
-                                            {customer.fullName}
+                                            {supplier.name}
                                         </li>
                                     ))}
                                     <li
-                                        onClick={handleAddNewCustomer}
+                                        onClick={handleAddNewSupplier}
                                         className="p-2 cursor-pointer hover:bg-gray-100 text-blue-500"
                                     >
-                                        + Add new customer
+                                        + Add new supplier
                                     </li>
                                 </ul>
                             )}
                         </div>
-                        <div className={`bg-black bg-opacity-50 backdrop-blur-sm fixed inset-0 z-40 ${showAddCustomerForm ? 'flex' : 'hidden'} items-center justify-center`}>
+                        <div className={`bg-black bg-opacity-50 backdrop-blur-sm fixed inset-0 z-40 ${showAddSupplierForm ? 'flex' : 'hidden'} items-center justify-center`}>
                             <div className="bg-white p-8 rounded-lg shadow-lg w-11/12 max-w-lg z-50">
-                                <h3 className="font-medium mb-2">Add New Customer</h3>
-                                <CustomerForm
-                                    cancel={handleCancelAddCustomer}
-                                    onSuccess={(customer) => {
-                                        setFormData({
-                                            ...formData,
-                                            customerName: customer.fullName,
-                                            customerId: customer._id,
-                                        });
-                                        setShowAddCustomerForm(false);
-                                    }}
-                                />
+                                <h3 className="font-medium mb-2">Add New Supplier</h3>
+                                <SupplierForm cancel={handleCancelAddSupplier} onSuccess={handleSuccess}  />
                             </div>
                         </div>
 
-                        {customerAddress && (
-                            <div className="border mt-2 rounded bg-gray-100">
-                                <p className='text-md text-black uppercase font-medium'>{customerDetails.fullName}</p>
-                                <p className='text-sm text-black capitalize'>{customerAddress}</p>
+                        {supplierAddress && (
+                            <div className="border mt-2 rounded bg-gray-100 p-2">
+                                <p className='text-md text-black uppercase font-medium'>{supplierDetails?.supplierName}</p>
+                                <p className='text-sm text-black capitalize'>{supplierAddress}</p>
                                 <p className='text-sm text-black capitalize'>GST No: URP</p>
-                                <p className='text-sm text-black capitalize'>State Name: {customerDetails.state}</p>
-                                <p className='text-sm text-black capitalize'>Email: {customerDetails.email}</p>
-                                <p className='text-sm text-black capitalize'>Mobile: {customerDetails.phone}</p>
+                                <p className='text-sm text-black capitalize'>State Name: {supplierDetails?.state}</p>
+                                <p className='text-sm text-black capitalize'>Email: {supplierDetails?.email}</p>
+                                <p className='text-sm text-black capitalize'>Mobile: {supplierDetails?.phone}</p>
                             </div>
                         )}
                     </div>
                     <div className="">
-                        <label htmlFor="invoiceNumber" className="block font-medium">Invoice Number</label>
+                        <label htmlFor="purchaseOrderNumber" className="block font-medium">Purchase Order Number</label>
                         <Input
                             type="text"
-                            name="invoiceNumber"
-                            value={formData.invoiceNumber}
+                            name="purchaseOrderNumber"
+                            value={formData.purchaseOrderNumber}
                             onChange={handleChange}
                             className="w-full border border-gray-300 p-2 rounded"
                             readOnly
                         />
                     </div>
+                    <div className="">
+                        <label htmlFor="purchaseInvoiceNumber" className="block font-medium">Purchase Invoice Number</label>
+                        <Input
+                            type="text"
+                            name="purchaseInvoiceNumber"
+                            value={formData.purchaseInvoiceNumber}
+                            onChange={handleChange}
+                            className="w-full border border-gray-300 p-2 rounded"
+                        />
+                    </div>
                     <div className="grid gap-6 grid-cols-2">
                         <div>
-                            <label htmlFor="invoiceDate" className="block font-medium">Invoice Date</label>
+                            <label htmlFor="purchaseDate" className="block font-medium">Purchase Date</label>
                             <Input
                                 type="text"
-                                name="invoiceDate"
-                                value={formData.invoiceDate}
+                                name="purchaseDate"
+                                value={formData.purchaseDate}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-2 rounded"
                             />
@@ -524,34 +565,30 @@ export default function Form() {
                     {rows.map((row, index) => (
                         <TableRow key={index}>
                             <TableCell>{index + 1}</TableCell>
-                            <TableCell className="relative w-[250px]">
+                            <TableCell className="relative w-[200px]">
                                 <Input
                                     type="text"
                                     name="itemDetails"
                                     value={row.itemDetails}
                                     onChange={(e) => handleChangeRowItemDetails(index, e)}
                                     onFocus={() => handleFocus(index)}
-                                    autoComplete='off'
+                                    autoComplete="off"
                                     onBlur={() => setTimeout(() => setIsFocused(false), 100)}
                                 />
                                 {index === activeRowIndex && isFocused && itemSearchResults.length > 0 && (
-                                    <ul className="absolute z-50 border border-gray-300 w-full mt-2 rounded-lg shadow-lg bg-white max-h-96 overflow-auto">
+                                    <ul className="absolute z-50 border border-gray-300 w-full mt-2 rounded shadow-lg bg-white max-h-60 overflow-auto">
                                         {itemSearchResults.map((item) => (
                                             <li
                                                 key={item.name}
                                                 onClick={() => handleSelectItem(index, item)}
-                                                className="p-3 flex flex-col cursor-pointer hover:bg-blue-400 border-b border-gray-200"
+                                                className="p-2 flex flex-col cursor-pointer hover:bg-gray-100 border-b border-gray-200"
                                             >
-                                                <p className="font-semibold text-gray-900">{item.name}</p>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-sm text-gray-500">₹{item.sellingPrice.toLocaleString('en-IN')}</span>
-                                                    <span className="text-sm text-gray-500">Qty: {item.quantity}</span>
-                                                </div>
+                                                <p className="font-semibold">{item.name}</p>
+                                                <p className="text-sm text-gray-500">{item.purchasePrice}</p>
                                             </li>
                                         ))}
                                     </ul>
                                 )}
-
                             </TableCell>
 
                             <TableCell>
@@ -596,8 +633,8 @@ export default function Form() {
                             </TableCell>
                             <TableCell>
                                 <Select
-                                    value={row.tax.toString()}
-                                    onValueChange={(value) => handleChangeRow(index, { target: { name: 'tax', value: parseFloat(value) } })}
+                                   value={row.tax.toString()} 
+                                   onValueChange={(value: string) => handleChangeRow(index, { target: { name: 'tax', value: parseFloat(value) } })}
                                 >
                                     <SelectTrigger className="w-[100px]">
                                         <SelectValue placeholder="Tax %" />
@@ -640,7 +677,7 @@ export default function Form() {
                 <div className="flex justify-end gap-2">
                     <p>Subtotal:</p>
                     <p>
-                        {(invoiceData.totalAmount - invoiceData.cgst - invoiceData.sgst).toLocaleString('en-IN', {
+                        {(purchaseData.totalAmount - purchaseData.cgst - purchaseData.sgst).toLocaleString('en-IN', {
                             style: 'currency',
                             currency: 'INR',
                         })}
@@ -649,7 +686,7 @@ export default function Form() {
                 <div className="flex justify-end gap-2">
                     <p>CGST:</p>
                     <p>
-                        {invoiceData.cgst.toLocaleString('en-IN', {
+                        {purchaseData.cgst.toLocaleString('en-IN', {
                             style: 'currency',
                             currency: 'INR',
                         })}
@@ -658,7 +695,7 @@ export default function Form() {
                 <div className="flex justify-end gap-2">
                     <p>SGST:</p>
                     <p>
-                        {invoiceData.sgst.toLocaleString('en-IN', {
+                        {purchaseData.sgst.toLocaleString('en-IN', {
                             style: 'currency',
                             currency: 'INR',
                         })}
@@ -667,7 +704,7 @@ export default function Form() {
                 <div className="flex justify-end font-bold gap-2">
                     <p>Total Amount:</p>
                     <p>
-                        {invoiceData.totalAmount.toLocaleString('en-IN', {
+                        {purchaseData.totalAmount.toLocaleString('en-IN', {
                             style: 'currency',
                             currency: 'INR',
                         })}
@@ -675,10 +712,8 @@ export default function Form() {
                 </div>
             </div>
 
-
             {error && <div className="text-red-600 mt-4">{error}</div>}
-            {success && <div className="text-green-600 mt-4">Invoice created successfully!</div>}
-            {quantityError && <div className="text-red-600 mt-2">{quantityError}</div>}
+            {success && <div className="text-green-600 mt-4">Purchase order created successfully!</div>}
             <div className='flex gap-4 mt-6'>
                 <button
                     type="button"
@@ -686,7 +721,7 @@ export default function Form() {
                     className={` py-2 px-4 ${loading ? 'bg-gray-400' : 'bg-white'} border border-black text-black rounded`}
                     disabled={loading}
                 >
-                    {loading ? 'Creating Invoice...' : 'Create Invoice'}
+                    {loading ? 'Creating Purchase Order...' : 'Create Purchase Order'}
                 </button>
                 <button
                     type="button"
@@ -697,7 +732,7 @@ export default function Form() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
 
-                    cancel
+                    Cancel
                 </button>
                 <button onClick={handlePrint} className={`py-2 px-4 border border-black bg-black  text-white rounded flex gap-1`}>Print</button>
             </div>
