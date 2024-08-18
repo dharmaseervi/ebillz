@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 interface UpdateProductFormProps {
     productId: string;
     params: { editproduct: string }
-    onCancel: () => void;
 }
 
 interface FormData {
