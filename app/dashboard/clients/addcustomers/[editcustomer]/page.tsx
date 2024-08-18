@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
 interface Customer {
@@ -12,12 +13,12 @@ interface Customer {
 }
 
 interface CustomerFormProps {
-    cancel: () => void;
-    params: { editcustomer: string }; 
+    params: { editcustomer: string };
 }
 
-export default function UpdateCustomerForm({ params, cancel }: CustomerFormProps) {
+export default function UpdateCustomerForm({ params }: CustomerFormProps) {
     const { editcustomer } = params;
+    const router = useRouter()
     const [formData, setFormData] = useState<Customer>({
         fullName: "",
         email: "",
@@ -28,6 +29,12 @@ export default function UpdateCustomerForm({ params, cancel }: CustomerFormProps
         zip: "",
     });
 
+      // Navigate back on cancel
+      const handleCancel = () => {
+        router.push('/dashboard/clients');
+    };
+
+    
     useEffect(() => {
         const fetchCustomer = async () => {
             try {
@@ -203,7 +210,7 @@ export default function UpdateCustomerForm({ params, cancel }: CustomerFormProps
                     </button>
                     <button
                         type="button"
-                        onClick={cancel}
+                        onClick={handleCancel}
                         className="bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                         Cancel
