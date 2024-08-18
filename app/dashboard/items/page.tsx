@@ -15,15 +15,27 @@ import {
 import { Pagination } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 
+
+interface Product {
+  _id: string;
+  name: string;
+  hsnCode: string;
+  quantity: number;
+  sellingPrice: number;
+  description: string;
+  unit: string;
+}
+
 export default function Additems() {
   const router = useRouter();
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState({ key: "id", order: "asc" });
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [search, setSearch] = useState<string>("");
+  const [sort, setSort] = useState<{ key: keyof Product, order: "asc" | "desc" }>({ key: "name", order: "asc" });
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+
 
   const handleAddProduct = () => {
     router.push('/dashboard/items/addproduct');
@@ -71,18 +83,18 @@ export default function Additems() {
       .slice((page - 1) * pageSize, page * pageSize);
   }, [search, sort, page, pageSize, products]);
 
-  const handleSearch = (e) => setSearch(e.target.value);
-  const handleSort = (key) => {
+  const handleSearch = (e: { target: { value: React.SetStateAction<string>; }; }) => setSearch(e.target.value);
+  const handleSort = (key: keyof Product) => {
     if (sort.key === key) {
       setSort({ key, order: sort.order === "asc" ? "desc" : "asc" });
     } else {
       setSort({ key, order: "asc" });
     }
   };
-  const handlePageChange = (page) => setPage(page);
-  const handlePageSizeChange = (size) => setPageSize(size);
+  const handlePageChange = (page: React.SetStateAction<number>) => setPage(page);
+  const handlePageSizeChange = (size: number) => setPageSize(size);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id:string) => {
     try {
       const res = await fetch(`/api/items`, {
         method: 'DELETE',
@@ -105,7 +117,7 @@ export default function Additems() {
     }
   };
 
-  const handleEdit = (id) => {
+  const handleEdit = (id:string) => {
     router.push(`/dashboard/items/addproduct/${id}`);
   };
 

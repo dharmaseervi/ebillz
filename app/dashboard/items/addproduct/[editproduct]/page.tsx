@@ -34,8 +34,7 @@ const unitOptions = [
     { value: 'pcs', label: 'Pieces (pcs)' },
     { value: 'kgs', label: 'Kilograms (kgs)' },
 ];
-
-const UpdateProductForm: React.FC<UpdateProductFormProps> = ({ params, onCancel }) => {
+ const UpdateProductForm: React.FC<UpdateProductFormProps> = ({ params, }) => {
     const { editproduct } = params;
     const productId = editproduct
     const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -61,6 +60,10 @@ const UpdateProductForm: React.FC<UpdateProductFormProps> = ({ params, onCancel 
             ...prev,
             [name]: value
         }));
+    };
+
+    const handleCancel = () => {
+        router.push('/dashboard/items');
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -174,7 +177,7 @@ const UpdateProductForm: React.FC<UpdateProductFormProps> = ({ params, onCancel 
                 </button>
                 <button
                     type="button"
-                    onClick={onCancel}
+                    onClick={handleCancel}
                     className="border-indigo-600 border bg-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                     Cancel

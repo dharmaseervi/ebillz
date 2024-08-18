@@ -1,9 +1,7 @@
 'use client'
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 
-interface ProductFormProps {
-    onSubmit: (formData: FormData) => void;
-}
+
 
 interface FormData {
     name: string;
@@ -23,7 +21,7 @@ const initialFormData: FormData = {
     description: '',
 };
 
-const ProductForm: React.FC<ProductFormProps> = () => {
+const ProductForm = () => {
     const unitOptions = [
         { value: 'mtr', label: 'Meter (mtr)' },
         { value: 'sqmtr', label: 'Square Meter (sq mtr)' },
