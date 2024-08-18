@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, ChangeEvent, MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Card, CardHeader, CardTitle, CardDescription, CardContent
@@ -15,7 +15,7 @@ import {
 import { Pagination } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 
-
+// Define types for the product data
 interface Product {
   _id: string;
   name: string;
@@ -26,8 +26,10 @@ interface Product {
   unit: string;
 }
 
-export default function Additems() {
+export default function AddItems() {
   const router = useRouter();
+  
+  // Define state with proper typing
   const [search, setSearch] = useState<string>("");
   const [sort, setSort] = useState<{ key: keyof Product, order: "asc" | "desc" }>({ key: "name", order: "asc" });
   const [page, setPage] = useState<number>(1);
@@ -35,7 +37,6 @@ export default function Additems() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
-
 
   const handleAddProduct = () => {
     router.push('/dashboard/items/addproduct');
@@ -47,7 +48,7 @@ export default function Additems() {
       if (!res.ok) throw new Error('Failed to fetch products');
       const data = await res.json();
       if (data) {
-        setProducts(data.filterData);
+        setProducts(data.filterData as Product[]); // Ensure data is typed correctly
       } else {
         throw new Error(data.error);
       }
@@ -61,7 +62,6 @@ export default function Additems() {
   useEffect(() => {
     fetchProducts();
   }, []);
-  console.log(products);
 
   const filteredProducts = useMemo(() => {
     return products
@@ -83,7 +83,8 @@ export default function Additems() {
       .slice((page - 1) * pageSize, page * pageSize);
   }, [search, sort, page, pageSize, products]);
 
-  const handleSearch = (e: { target: { value: React.SetStateAction<string>; }; }) => setSearch(e.target.value);
+  // Add typing to event handlers
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
   const handleSort = (key: keyof Product) => {
     if (sort.key === key) {
       setSort({ key, order: sort.order === "asc" ? "desc" : "asc" });
@@ -91,10 +92,10 @@ export default function Additems() {
       setSort({ key, order: "asc" });
     }
   };
-  const handlePageChange = (page: React.SetStateAction<number>) => setPage(page);
+  const handlePageChange = (page: number) => setPage(page);
   const handlePageSizeChange = (size: number) => setPageSize(size);
 
-  const handleDelete = async (id:string) => {
+  const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`/api/items`, {
         method: 'DELETE',
@@ -117,7 +118,7 @@ export default function Additems() {
     }
   };
 
-  const handleEdit = (id:string) => {
+  const handleEdit = (id: string) => {
     router.push(`/dashboard/items/addproduct/${id}`);
   };
 
@@ -137,7 +138,7 @@ export default function Additems() {
               <Input placeholder="Search products..." value={search} onChange={handleSearch} className="max-w-xs" />
               <div className="flex items-center gap-2">
                 <Label htmlFor="page-size">Show</Label>
-                <Select id="page-size" value={pageSize} onValueChange={handlePageSizeChange}>
+                <Select value={String(pageSize)} onValueChange={(value) => handlePageSizeChange(Number(value))}>
                   <SelectTrigger className="w-24">
                     <SelectValue />
                   </SelectTrigger>
@@ -154,21 +155,21 @@ export default function Additems() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("itemDetails")}>
+                  <TableHead className="cursor-pointer" onClick={() => handleSort("name")}>
                     Item Details
-                    {sort.key === "itemDetails" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                    {sort.key === "name" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
                   </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("hsn")}>
+                  <TableHead className="cursor-pointer" onClick={() => handleSort("hsnCode")}>
                     HSN
-                    {sort.key === "hsn" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                    {sort.key === "hsnCode" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
                   </TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort("quantity")}>
                     Quantity
                     {sort.key === "quantity" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
                   </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("rate")}>
+                  <TableHead className="cursor-pointer" onClick={() => handleSort("sellingPrice")}>
                     Rate
-                    {sort.key === "rate" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                    {sort.key === "sellingPrice" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
                   </TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort("unit")}>
