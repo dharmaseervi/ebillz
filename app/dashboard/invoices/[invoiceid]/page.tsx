@@ -69,3 +69,4 @@ const PrintPage: React.FC<PrintPageProps> = ({ params }) => {
     </div>
   );
 }
+export default PrintPage
