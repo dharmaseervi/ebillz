@@ -1,3 +1,4 @@
+'use client'
 import { getToken } from "@auth/core/jwt";
 import { NextResponse } from "next/server";
 
