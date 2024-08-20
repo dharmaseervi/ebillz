@@ -8,11 +8,12 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { Pagination } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
 
 
 interface Invoice {
   id: string;
+  _id: string;
   invoiceNumber: number;
   customerName: string;
   invoiceDate: string;
@@ -30,7 +31,7 @@ export default function InvoiceTable() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const router = useRouter();
-  
+
   const fetchInvoices = async () => {
     try {
       const res = await fetch('/api/invoice');
@@ -111,7 +112,7 @@ export default function InvoiceTable() {
     }
   };
 
-    const handlePrint = (id: string) => {
+  const handlePrint = (id: string) => {
     router.push(`/dashboard/invoices/${id}`);
   };
 
@@ -163,17 +164,18 @@ export default function InvoiceTable() {
           <Input placeholder="Search invoices..." value={search} onChange={handleSearch} className="max-w-xs" />
           <div className="flex items-center gap-2">
             <Label htmlFor="page-size">Show</Label>
-            <Select id="page-size" value={pageSize} onValueChange={handlePageSizeChange}>
+            <Select value={String(pageSize)} onValueChange={(value) => handlePageSizeChange(Number(value))}>
               <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={10}>10</SelectItem>
-                <SelectItem value={20}>20</SelectItem>
-                <SelectItem value={50}>50</SelectItem>
-                <SelectItem value={100}>100</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
               </SelectContent>
             </Select>
+
             <Label htmlFor="page-size">entries</Label>
           </div>
         </div>
@@ -196,9 +198,9 @@ export default function InvoiceTable() {
                 Due Date
                 {sort.key === "dueDate" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
               </TableHead>
-              <TableHead className="cursor-pointer text-right" onClick={() => handleSort("amount")}>
+              <TableHead className="cursor-pointer text-right" onClick={() => handleSort("totalAmount")}>
                 Amount
-                {sort.key === "amount" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                {sort.key === "totalAmount" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
               </TableHead>
               <TableHead className="cursor-pointer" onClick={() => handleSort("invoiceStatus")}>
                 Status
@@ -209,7 +211,7 @@ export default function InvoiceTable() {
           </TableHeader>
           <TableBody>
             {filteredInvoices.map((invoice) => (
-              <TableRow key={invoice.id}>
+              <TableRow key={invoice._id}>
                 <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
                 <TableCell>{invoice.customerName}</TableCell>
                 <TableCell>{new Date(invoice.invoiceDate).toLocaleDateString('en-GB')}</TableCell>
@@ -245,10 +247,6 @@ export default function InvoiceTable() {
             Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, invoices.length)} of {invoices.length} entries
           </div>
           <Pagination
-            currentPage={page}
-            pageSize={pageSize}
-            totalItems={invoices.length}
-            onPageChange={handlePageChange}
           />
         </div>
       </CardContent>
