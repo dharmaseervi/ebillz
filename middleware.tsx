@@ -1,8 +1,7 @@
-'use client'
 import { getToken } from "@auth/core/jwt";
 import { NextResponse } from "next/server";
 
-export async function middleware(request) {
+export async function middleware(request: any) {
     const path = request.nextUrl.pathname;
 
     // Ensure secret and salt are defined and available from environment variables
@@ -13,9 +12,11 @@ export async function middleware(request) {
         throw new Error("Missing AUTH_SECRET or JWT_SALT environment variables.");
     }
 
+
     const token = await getToken({
         req: request,
         secret,
+        salt
     });
 
     console.log("Token:", token); // Debugging
