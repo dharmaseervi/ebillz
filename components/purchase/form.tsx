@@ -633,8 +633,15 @@ export default function PurchaseForm() {
                             </TableCell>
                             <TableCell>
                                 <Select
-                                   value={row.tax.toString()} 
-                                   onValueChange={(value: string) => handleChangeRow(index, { target: { name: 'tax', value: parseFloat(value) } })}
+                                    value={row.tax.toString()} // Ensure tax is a string
+                                    onValueChange={(value) =>
+                                        handleChangeRow(index, {
+                                            target: {
+                                                name: 'tax',
+                                                value, // Value is already a string, so no need to parse
+                                            },
+                                        } as unknown as React.ChangeEvent<HTMLInputElement>)
+                                    } // Cast the event as ChangeEvent<HTMLInputElement>
                                 >
                                     <SelectTrigger className="w-[100px]">
                                         <SelectValue placeholder="Tax %" />
@@ -645,7 +652,7 @@ export default function PurchaseForm() {
                                         <SelectItem value="28">28%</SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </TableCell>
+                            </TableCell> 
                             <TableCell>{row.amount.toFixed(2)}</TableCell>
                             <TableCell>
                                 <button
