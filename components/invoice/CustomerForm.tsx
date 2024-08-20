@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 
 interface CustomerFormProps {
   cancel: () => void;
+  onSuccess: (customer: any) => void;
 }
 
 export default function CustomerForm({ cancel }: CustomerFormProps) {

@@ -5,7 +5,13 @@ import { useReactToPrint } from 'react-to-print';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-export default function PrintPage({ params }) {
+type PrintPageProps = {
+  params: {
+    invoiceid: string;
+  };
+};
+
+const PrintPage: React.FC<PrintPageProps> = ({ params }) => {
   const { invoiceid } = params;
   console.log(invoiceid);
   

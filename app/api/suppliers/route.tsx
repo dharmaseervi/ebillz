@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
     try {
         // Authenticate the user
-        const session = await auth();
+        const session: any = await auth();
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'User not authenticated' }, { status: 401 });
         }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     await connectDB();
     try {
         const data = await request.json();
-        const session = await auth();
+        const session: any = await auth();
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }

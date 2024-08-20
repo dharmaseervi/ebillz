@@ -3,23 +3,23 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-
+// Define the Supplier type
+interface Supplier {
+    name: string;
+    contactNumber: string;
+    email: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    gstNumber: string;
+}
 // Define the types for the props
 interface SupplierFormProps {
-    onSuccess: (supplier: any) => void;  // You can replace `any` with a specific type if you have one
+    onSuccess: (supplier: Supplier) => void;
     cancel: () => void;
-    supplier?: {
-        name: string;
-        contactNumber: string;
-        email: string;
-        address: string;
-        city: string;
-        state: string;
-        zip: string;
-        gstNumber: string;
-    };
+    supplier?: Supplier | null;
 }
-
 const SupplierForm: React.FC<SupplierFormProps> = ({ onSuccess, cancel, supplier }) => {
     const [formData, setFormData] = useState({
         name: '',

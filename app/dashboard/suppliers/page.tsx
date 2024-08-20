@@ -13,11 +13,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
 
+interface Supplier {
+    _id: string;
+    name: string;
+    contactNumber: string;
+    email: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    gstNumber: string;
+}
 
-const SupplierList = () => {
-    const [suppliers, setSuppliers] = useState([]);
-    const [editingSupplier, setEditingSupplier] = useState(null);
+
+const SupplierList: React.FC = () => {
+    const [suppliers, setSuppliers] = useState<Supplier[]>([]); // Type definition for suppliers array
+    const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
     const [showForm, setShowForm] = useState(false);
+    const [loading, setLoading] = useState(false); // Loading state
+    const [error, setError] = useState('');
     const router = useRouter();
     const fetchSuppliers = async () => {
         try {
@@ -38,12 +52,12 @@ const SupplierList = () => {
         fetchSuppliers();
     }, []);
 
-    const handleEdit = (supplier) => {
+    const handleEdit = (supplier: React.SetStateAction<Supplier | null>) => {
         setEditingSupplier(supplier);
         setShowForm(true);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id: string) => {
         try {
             const res = await fetch(`/api/suppliers`, {
                 method: 'DELETE',
@@ -66,7 +80,7 @@ const SupplierList = () => {
         setEditingSupplier(null);
         fetchSuppliers();
     };
-    const goToLedger = (id) => {
+    const goToLedger = (id: string) => {
         if (suppliers) {
             router.push(`/dashboard/ledger/${id}`);
         }

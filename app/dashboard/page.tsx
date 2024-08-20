@@ -6,15 +6,26 @@ import { BarChart, Bar, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, R
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 
+interface Invoice {
+  invoiceDate: string;
+  invoiceNumber: string;
+  customerName: string;
+  totalAmount: number;
+}
+
+interface Stock {
+  name: string;
+  quantity: number;
+  sellingPrice: number;
+}
 
 const Dashboard = () => {
-  const [revenueData, setRevenueData] = useState([]);
-  const [expenseData, setExpenseData] = useState([]);
-
-  const [invoiceData, setInvoiceData] = useState([]);
-  const [recentBills, setRecentBills] = useState([]);
-  const [stockData, setStockData] = useState([]);
-  const [error, setError] = useState('');
+  const [revenueData, setRevenueData] = useState<{ month: string, revenue: number }[]>([]);
+  const [expenseData, setExpenseData] = useState<{ month: string, expense: number }[]>([]);
+  const [invoiceData, setInvoiceData] = useState<Invoice[]>([]);
+  const [recentBills, setRecentBills] = useState<Invoice[]>([]);
+  const [stockData, setStockData] = useState<Stock[]>([]);
+  const [error, setError] = useState<string>('');
   const [showAllStocks, setShowAllStocks] = useState(false);
 
   useEffect(() => {
@@ -79,7 +90,7 @@ const Dashboard = () => {
     }
   };
 
- const formatCurrency = (value) => {
+ const formatCurrency = (value: number) => {
     return value.toLocaleString('en-IN', {
       style: 'currency',
       currency: 'INR',

@@ -5,9 +5,12 @@ export default function page() {
   const handleCancel = () => {
    
   };
+  const handleSuccess =()=>{
+
+  }
   return (
     <div>
-      <CustomerForm cancel={handleCancel} />
+      <CustomerForm onSuccess={ handleSuccess} cancel={handleCancel} />
     </div>
   )
 }

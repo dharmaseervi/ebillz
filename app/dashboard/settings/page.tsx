@@ -8,10 +8,24 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { PlusCircle, Edit3, Trash2 } from 'lucide-react';
 import CompanyForm from '@/components/company/companyForm';
 
+// Define type for Company
+interface Company {
+  _id: string;
+  companyName: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  contactNumber: string;
+  email: string;
+  gstNumber: string;
+}
+
 const CompanyList = () => {
-  const [companies, setCompanies] = useState([]);
-  const [editingCompany, setEditingCompany] = useState(null);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null); // Define proper types for state
   const [showForm, setShowForm] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState<string | null>(null); // Track deletion process
 
   const fetchCompanies = async () => {
     try {
@@ -31,12 +45,12 @@ const CompanyList = () => {
     fetchCompanies();
   }, []);
 
-  const handleEdit = (company) => {
+  const handleEdit = (company: Company) => {
     setEditingCompany(company);
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: any) => {
     try {
       const res = await fetch(`/api/company?id=${id}`, {
         method: 'DELETE',
@@ -51,7 +65,7 @@ const CompanyList = () => {
     }
   };
 
-  const handleSuccess = (company) => {
+  const handleSuccess = () => {
     setShowForm(false);
     setEditingCompany(null);
     fetchCompanies();
@@ -67,7 +81,7 @@ const CompanyList = () => {
         <CardContent>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-gray-800">Companies</h2>
-            <Dialog  open={showForm} onOpenChange={setShowForm} >
+            <Dialog open={showForm} onOpenChange={setShowForm} >
               <DialogTrigger asChild>
                 <Button className="flex items-center bg-blue-500 text-white py-2 px-4 rounded">
                   <PlusCircle className="mr-2" size={18} /> Create New Company

@@ -8,7 +8,7 @@ export async function GET() {
 
     try {
         // Get the authenticated user's session
-        const session = await auth();
+        const session: any = await auth();
 
         // Ensure the user is authenticated
         if (!session || !session.user) {

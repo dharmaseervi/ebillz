@@ -28,7 +28,7 @@ interface Product {
 
 export default function AddItems() {
   const router = useRouter();
-  
+
   // Define state with proper typing
   const [search, setSearch] = useState<string>("");
   const [sort, setSort] = useState<{ key: keyof Product, order: "asc" | "desc" }>({ key: "name", order: "asc" });
@@ -143,10 +143,10 @@ export default function AddItems() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={10}>10</SelectItem>
-                    <SelectItem value={20}>20</SelectItem>
-                    <SelectItem value={50}>50</SelectItem>
-                    <SelectItem value={100}>100</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
                   </SelectContent>
                 </Select>
                 <Label htmlFor="page-size">entries</Label>
@@ -201,10 +201,8 @@ export default function AddItems() {
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, products.length)} of {products.length} entries
               </div>
               <Pagination
-                currentPage={page}
-                pageSize={pageSize}
-                totalItems={products.length}
-                onPageChange={handlePageChange}
+               
+
               />
             </div>
           </CardContent>

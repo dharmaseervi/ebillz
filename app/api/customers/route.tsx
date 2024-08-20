@@ -10,7 +10,7 @@ export async function POST(request: Request) {
         const { fullName, email, phone, address, city, state, zip } = await request.json();
         console.log(fullName, email, phone, address, city, state, zip);
 
-        const session = await auth();
+        const session: any = await auth();
 
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
         const id = searchParams.get('id');
 
         // Get the session for the current user
-        const session = await auth();
+        const session: any = await auth();
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }

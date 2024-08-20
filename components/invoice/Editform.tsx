@@ -3,7 +3,6 @@ import React, { useState, useEffect, ChangeEvent, useCallback } from 'react';
 import CustomerForm from './CustomerForm';
 import debounce from 'lodash.debounce';
 import { Input } from '@/components/ui/input';
-import { useSession } from 'next-auth/react';
 import {
     Table,
     TableBody,
@@ -61,7 +60,9 @@ interface FormData {
     items: Row[];
     totalAmount: number,
 }
-
+interface EditInvoiceFormProps {
+    invoiceId: string;
+}
 function formatDate(date: Date): string {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
@@ -69,9 +70,7 @@ function formatDate(date: Date): string {
     return `${day}/${month}/${year}`;
 }
 
-const EditInvoiceForm: React.FC = ({ invoiceId }) => {
-    const session = useSession()
-    const userId = session?.data?.user?._id || '';
+const EditInvoiceForm: React.FC<EditInvoiceFormProps> = ({ invoiceId }) => {
     const [formData, setFormData] = useState<FormData>({
         invoiceNumber: 0,
         customerName: '',
@@ -257,7 +256,6 @@ const EditInvoiceForm: React.FC = ({ invoiceId }) => {
         const updatedFormData = {
             ...formData,
             items: rows,
-            userId,
             dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
             totalAmount: invoiceData.totalAmount,
         };
@@ -562,8 +560,15 @@ const EditInvoiceForm: React.FC = ({ invoiceId }) => {
                             </TableCell>
                             <TableCell>
                                 <Select
-                                    value={row.tax.toString()}
-                                    onValueChange={(value) => handleChangeRow(index, { target: { name: 'tax', value: parseFloat(value) } })}
+                                    value={row.tax.toString()} // Ensure tax is a string
+                                    onValueChange={(value) =>
+                                        handleChangeRow(index, {
+                                            target: {
+                                                name: 'tax',
+                                                value, // Value is already a string, so no need to parse
+                                            },
+                                        } as unknown as React.ChangeEvent<HTMLInputElement>)
+                                    } // Cast the event as ChangeEvent<HTMLInputElement>
                                 >
                                     <SelectTrigger className="w-[100px]">
                                         <SelectValue placeholder="Tax %" />
@@ -574,6 +579,8 @@ const EditInvoiceForm: React.FC = ({ invoiceId }) => {
                                         <SelectItem value="28">28%</SelectItem>
                                     </SelectContent>
                                 </Select>
+
+
                             </TableCell>
                             <TableCell>{row.amount.toFixed(2)}</TableCell>
                             <TableCell>

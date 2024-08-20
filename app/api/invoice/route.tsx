@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         const parsedInvoiceDate = parseDate(invoiceDate);
 
         // Get session data
-        const session = await auth();
+        const session: any = await auth();
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }
@@ -82,7 +82,7 @@ export async function GET(request: Request) {
     await connectDB();
 
     // Get session data
-    const session = await auth();
+    const session: any = await auth();
     if (!session || !session.user) {
         return NextResponse.json({ success: false, error: 'User not authenticated' });
     }

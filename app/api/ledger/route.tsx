@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
     try {
         // Get the authenticated user's session
-        const session = await auth();
+        const session: any = await auth();
 
         // Ensure the user is authenticated
         if (!session || !session.user) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
     try {
         const { date, particulars, vchType, vchNo, debit, credit, supplierId } = await request.json();
-        const session = await auth();
+        const session: any = await auth();
 
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });

@@ -7,7 +7,7 @@ import { auth } from "@/auth"
 
 export async function POST(request: Request) {
     await connectDB();
-    const session = await auth()
+    const session: any = await auth();
     try {
         const userId = session?.user?._id;
         const { name, unit, hsnCode, sellingPrice, quantity, description } = await request.json();
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
         const id = searchParams.get('id');
 
         // Get session data for the current user
-        const session = await auth();
+        const session: any = await auth();
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }

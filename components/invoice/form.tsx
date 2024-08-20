@@ -33,6 +33,8 @@ interface Customer {
 }
 
 interface Item {
+    quantity: any;
+    _id: string;
     name: string;
     hsnCode: number;
     sellingPrice: number;
@@ -50,7 +52,7 @@ interface Row {
     amount: number;
     desc: string;
     unit: string;
-    itemId:string
+    itemId: string
 }
 
 interface FormData {
@@ -75,7 +77,6 @@ const formattedDate = formatDate(currentDate);
 
 export default function Form() {
     const session = useSession()
-    const userId = session?.data?.user?._id || '';
     const [formData, setFormData] = useState<FormData>({
         invoiceNumber: 0,
         customerName: '',
@@ -102,7 +103,7 @@ export default function Form() {
         cgst: 0,
         sgst: 0,
     });
-    const [customerDetails, setCustomerDetails] = useState<Item[]>([]);
+    const [customerDetails, setCustomerDetails] = useState<Customer | null>(null); // Or an appropriate type
     const [quantityError, setQuantityError] = useState<string | null>(null);
     const router = useRouter();
 
@@ -182,7 +183,7 @@ export default function Form() {
         const { name, value } = e.target;
         const newRows = [...rows];
         console.log(newRows);
-        
+
 
         if (name === 'quantity') {
             const enteredQuantity = parseFloat(value);
@@ -269,7 +270,6 @@ export default function Form() {
         const updatedFormData = {
             ...formData,
             items: rows,
-            userId,
             dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
             totalAmount: invoiceData.totalAmount,
         };
@@ -460,12 +460,12 @@ export default function Form() {
 
                         {customerAddress && (
                             <div className="border mt-2 rounded bg-gray-100">
-                                <p className='text-md text-black uppercase font-medium'>{customerDetails.fullName}</p>
+                                <p className='text-md text-black uppercase font-medium'>{customerDetails?.fullName}</p>
                                 <p className='text-sm text-black capitalize'>{customerAddress}</p>
                                 <p className='text-sm text-black capitalize'>GST No: URP</p>
-                                <p className='text-sm text-black capitalize'>State Name: {customerDetails.state}</p>
-                                <p className='text-sm text-black capitalize'>Email: {customerDetails.email}</p>
-                                <p className='text-sm text-black capitalize'>Mobile: {customerDetails.phone}</p>
+                                <p className='text-sm text-black capitalize'>State Name: {customerDetails?.state}</p>
+                                <p className='text-sm text-black capitalize'>Email: {customerDetails?.email}</p>
+                                <p className='text-sm text-black capitalize'>Mobile: {customerDetails?.phone}</p>
                             </div>
                         )}
                     </div>
@@ -596,8 +596,15 @@ export default function Form() {
                             </TableCell>
                             <TableCell>
                                 <Select
-                                    value={row.tax.toString()}
-                                    onValueChange={(value) => handleChangeRow(index, { target: { name: 'tax', value: parseFloat(value) } })}
+                                    value={row.tax.toString()} // Ensure tax is a string
+                                    onValueChange={(value) =>
+                                        handleChangeRow(index, {
+                                            target: {
+                                                name: 'tax',
+                                                value, // Value is already a string, so no need to parse
+                                            },
+                                        } as unknown as React.ChangeEvent<HTMLInputElement>)
+                                    } // Cast the event as ChangeEvent<HTMLInputElement>
                                 >
                                     <SelectTrigger className="w-[100px]">
                                         <SelectValue placeholder="Tax %" />

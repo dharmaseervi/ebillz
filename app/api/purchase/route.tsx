@@ -10,7 +10,7 @@ export async function POST(request: Request) {
 
   try {
       const { purchaseOrderNumber, purchaseInvoiceNumber, supplierName, supplierId, purchaseDate, dueDate, items, totalAmount } = await request.json();
-      const session = await auth();
+      const session: any = await auth();
       if (!session || !session.user) {
           return NextResponse.json({ success: false, error: 'User not authenticated' });
       }
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
     const id = url.searchParams.get('id');
 
     // Get session data for the current user
-    const session = await auth();
+    const session: any = await auth();
     if (!session || !session.user) {
       return NextResponse.json({ success: false, error: 'User not authenticated' });
     }

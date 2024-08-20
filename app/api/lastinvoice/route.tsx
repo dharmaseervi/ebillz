@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
     try {
         // Get the authenticated user
-        const session = await auth();
+        const session: any = await auth();
 
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
