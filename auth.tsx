@@ -70,7 +70,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         signIn: "/auth/sign-in",
     },
     session: {
-        strategy: "jwt",
+        strategy: "jwt", // or "database" depending on your storage strategy
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        updateAge: 24 * 60 * 60, // 24 hours
     },
     callbacks: {
         async jwt({ token, user }) {
@@ -87,11 +89,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 ...session,
                 user: {
                     ...session.user,
-                    _id: token.id ,
+                    _id: token.id,
                 },
             };
         },
-        
+
     },
 });
 
