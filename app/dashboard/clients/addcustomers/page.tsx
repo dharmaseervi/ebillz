@@ -1,3 +1,4 @@
+'use client'
 import CustomerForm from '@/components/invoice/CustomerForm'
 import React from 'react'
 
