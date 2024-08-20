@@ -6,7 +6,6 @@ export async function middleware(request) {
 
     // Ensure secret and salt are defined and available from environment variables
     const secret = process.env.AUTH_SECRET;
-    const salt = process.env.JWT_SALT;
 
     if (!secret || !salt) {
         throw new Error("Missing AUTH_SECRET or JWT_SALT environment variables.");
