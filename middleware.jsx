@@ -19,7 +19,7 @@ export async function middleware(request) {
 //   console.log("Token:", token); // Debugging
 
   const privatePaths = [
-    "/",
+   
     "/dashboard",
     "/clients",
     "/expenses",
@@ -42,7 +42,7 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
-    "/",
+   
     "/dashboard/:path*",
     "/clients/:path*",
     "/expenses/:path*",
