@@ -39,7 +39,7 @@ export default function Clients() {
 
   const fetchCustomers = async () => {
     try {
-      const res = await fetch('/api/customers');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}//api/customers`);
       if (!res.ok) throw new Error('Failed to fetch customers');
       const data = await res.json();
       if (data) {

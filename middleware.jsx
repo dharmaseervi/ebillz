@@ -19,8 +19,14 @@ export async function middleware(request) {
 //   console.log("Token:", token); // Debugging
 
   const privatePaths = [
-
-
+    "/",
+    "/dashboard",
+    "/clients",
+    "/expenses",
+    "/invoice",
+    "/items",
+    "/reports",
+    "/settings",
   ];
   const isPrivatePath = privatePaths.some((privatePath) =>
     path.startsWith(privatePath)
