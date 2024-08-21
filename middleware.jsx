@@ -19,8 +19,14 @@ export async function middleware(request) {
 //   console.log("Token:", token); // Debugging
 
   const privatePaths = [
-   
-  
+    "/",
+    "/dashboard",
+    "/clients",
+    "/expenses",
+    "/invoice",
+    "/items",
+    "/reports",
+    "/settings",
   ];
   const isPrivatePath = privatePaths.some((privatePath) =>
     path.startsWith(privatePath)
@@ -35,8 +41,20 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: [
-   
-    
-  ],
+  // Matcher for all paths
+  matcher: ({ req }) => {
+    // Match all routes except for API routes and private paths
+    const privatePaths = [
+      "/",
+      "/dashboard",
+      "/clients",
+      "/expenses",
+      "/invoice",
+      "/items",
+      "/reports",
+      "/settings",
+    ];
+    const isPrivatePath = privatePaths.some(path => req.url.startsWith(path));
+    return !req.url.startsWith("/api") && isPrivatePath;
+  },
 };
