@@ -91,17 +91,17 @@ const Dashboard = () => {
   };
 
  const formatCurrency = (value: number) => {
-    return value.toLocaleString('en-IN', {
+    return value?.toLocaleString('en-IN', {
       style: 'currency',
       currency: 'INR',
     });
   };
   
 
-  const totalStockQuantity = stockData.reduce((sum, item) => sum + (item.quantity || 0), 0);
-  const totalStockAmount = stockData.reduce((sum, item) => sum + ((item.quantity || 0) * (item.sellingPrice || 0)), 0);
+  const totalStockQuantity = stockData?.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const totalStockAmount = stockData?.reduce((sum, item) => sum + ((item.quantity || 0) * (item.sellingPrice || 0)), 0);
 
-  const displayedStockData = showAllStocks ? stockData : stockData.slice(-10);
+  const displayedStockData = showAllStocks ? stockData : stockData?.slice(-10);
 
   return (
     <Layout>
@@ -113,14 +113,14 @@ const Dashboard = () => {
             <CardContent>
               <h1 className="text-white text-lg">Total Revenue</h1>
               <p className="text-2xl font-bold">
-                {formatCurrency(invoiceData.reduce((sum, data) => sum + (data?.totalAmount || 0), 0))}
+                {formatCurrency(invoiceData?.reduce((sum, data) => sum + (data?.totalAmount || 0), 0))}
               </p>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-r from-green-400 to-teal-500 text-white p-2">
             <CardContent>
               <h1 className="text-white text-lg">Total Orders</h1>
-              <p className="text-2xl font-bold">{invoiceData.length}</p>
+              <p className="text-2xl font-bold">{invoiceData?.length}</p>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-r from-indigo-400 to-pink-500 text-white p-2">
@@ -209,7 +209,7 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {displayedStockData.map((stock, index) => (
+                  {displayedStockData?.map((stock, index) => (
                     <TableRow key={index}>
                       <TableCell>{stock.name}</TableCell>
                       <TableCell>{stock.quantity}</TableCell>
@@ -217,7 +217,7 @@ const Dashboard = () => {
                   ))}
                 </TableBody>
               </Table>
-              {stockData.length > 10 && !showAllStocks && (
+              {stockData?.length > 10 && !showAllStocks && (
                 <button
                   onClick={() => setShowAllStocks(true)}
                   className="mt-2 text-blue-500"
@@ -255,10 +255,10 @@ const Dashboard = () => {
                 <TableBody>
                   {recentBills.map((bill, index) => (
                     <TableRow key={index}>
-                      <TableCell>{new Date(bill.invoiceDate).toLocaleDateString()}</TableCell>
-                      <TableCell>{bill.invoiceNumber}</TableCell>
-                      <TableCell>{bill.customerName}</TableCell>
-                      <TableCell>{formatCurrency(bill.totalAmount)}</TableCell>
+                      <TableCell>{new Date(bill?.invoiceDate).toLocaleDateString()}</TableCell>
+                      <TableCell>{bill?.invoiceNumber}</TableCell>
+                      <TableCell>{bill?.customerName}</TableCell>
+                      <TableCell>{formatCurrency(bill?.totalAmount)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

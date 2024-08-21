@@ -128,7 +128,7 @@ export default function Previewandprint({ invoiceid }: PreviewandprintProps) {
     );
 
     return (
-        <div className='p-4 max-w-4xl mx-auto border border-gray-900 rounded-lg shadow-lg' style={{ width: '210mm', minHeight: '280mm' }}>
+        <div className='p-4 max-w-4xl mx-auto border border-gray-900 ' style={{ width: '210mm', minHeight: '100mm' }}>
             {/* Header Section */}
             <div className='p-4 flex justify-center items-center gap-2 border-b border-gray-900 mb-2'>
                 <div className='flex flex-col justify-center items-center w-3/3'>
@@ -165,7 +165,7 @@ export default function Previewandprint({ invoiceid }: PreviewandprintProps) {
             </div>
 
             {/* Items Table */}
-            <div className='mt-1 border border-gray-900 min-h-[120mm]' style={{ minHeight: '120mm' }}>
+            <div className='mt-1 border border-gray-900 min-h-[100mm]' style={{ minHeight: '140mm' }}>
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -195,16 +195,16 @@ export default function Previewandprint({ invoiceid }: PreviewandprintProps) {
                             </TableRow>
                         ))}
 
-                        <TableRow>
+                        <TableRow className='border-b border border-gray-900'>
                             <TableCell colSpan={7}></TableCell>
-                            <TableCell className='font-bold border-r border-gray-900'>Subtotal</TableCell>
+                            <TableCell className='font-bold  border-gray-900'>Subtotal</TableCell>
                             <TableCell>{subtotal.toFixed(2)}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
             </div>
 
-            <div  style={{pageBreakBefore:'always'}}>
+            <div>
                 {/* Bank Details and CGST/SGST */}
                 <div className='mt-2 grid grid-cols-3 gap-2 text-xs'>
                     <div className='border border-gray-900 p-2 col-span-2'>
@@ -240,8 +240,6 @@ export default function Previewandprint({ invoiceid }: PreviewandprintProps) {
                     </ul>
                 </div>
             </div>
-
-
 
             {/* Pagination */}
             <div className='text-right text-xs mt-2'>
