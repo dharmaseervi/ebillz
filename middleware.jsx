@@ -19,7 +19,7 @@ export async function middleware(request) {
 //   console.log("Token:", token); // Debugging
 
   const privatePaths = [
-    "/",
+
     "/dashboard",
     "/clients",
     "/expenses",
