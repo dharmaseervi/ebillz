@@ -9,13 +9,15 @@ export async function middleware(request: NextRequest) {
     throw new Error("Missing AUTH_SECRET environment variable.");
   }
 
+  // Log request details
+  console.log("Request Path:", path);
+  console.log("Request Headers:", request.headers);
+
   const token = await getToken({
     req: request,
     secret,
   });
 
-  // Enhanced Debugging Logs
-  console.log("Request Path:", path);
   console.log("Token:", token);
 
   const privatePaths = [
