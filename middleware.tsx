@@ -1,14 +1,14 @@
 import { getToken } from "@auth/core/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function middleware(request) {
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  // Ensure secret and salt are defined and available from environment variables
+  // Ensure the secret is available from environment variables
   const secret = process.env.AUTH_SECRET;
 
   if (!secret) {
-    throw new Error("Missing AUTH_SECRET or JWT_SALT environment variables.");
+    throw new Error("Missing AUTH_SECRET environment variable.");
   }
 
   const token = await getToken({
@@ -16,8 +16,7 @@ export async function middleware(request) {
     secret,
   });
 
-//   console.log("Token:", token); // Debugging
-
+  // Define paths that require authentication
   const privatePaths = [
     "/",
     "/dashboard",
@@ -28,11 +27,12 @@ export async function middleware(request) {
     "/reports",
     "/settings",
   ];
+
   const isPrivatePath = privatePaths.some((privatePath) =>
     path.startsWith(privatePath)
   );
 
-  // If token does not exist and user tries to access private path, redirect to login
+  // Redirect to login if token is missing and trying to access a protected route
   if (!token && isPrivatePath) {
     return NextResponse.redirect(new URL("/auth/sign-in", request.nextUrl));
   }

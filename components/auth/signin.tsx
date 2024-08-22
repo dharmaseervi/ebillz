@@ -15,7 +15,6 @@ export default function SigninPage() {
         password: "",
     });
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('')
     const router = useRouter();
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -30,7 +29,6 @@ export default function SigninPage() {
 
             if (res && res.error) {
                 console.log(res);
-                setSuccess('logged in successful')
                 setError(res.error);
                 return;
             }
@@ -87,7 +85,6 @@ export default function SigninPage() {
                         </div>
                     </div>
                     {error && <p className="text-red-500 text-center mt-2">{error}</p>}
-                    {success && <p className="text-green-500 text-center mt-2">{success}</p>}
                     <Button type="submit" className="mt-6 w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Sign In
                     </Button>
