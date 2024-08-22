@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
 
   // Define paths that require authentication
   const privatePaths = [
-    "/",
+  
     "/dashboard",
     "/clients",
     "/expenses",
@@ -42,7 +42,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
     "/dashboard/:path*",
     "/clients/:path*",
     "/expenses/:path*",
