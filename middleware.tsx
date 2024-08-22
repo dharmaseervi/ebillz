@@ -9,17 +9,16 @@ export async function middleware(request: NextRequest) {
     throw new Error("Missing AUTH_SECRET environment variable.");
   }
 
-  // Log request details
-  console.log("Request Path:", path);
-  console.log("Request Headers:", request.headers.get("cookie"));
-
-
-  const token = await getToken({
+  // Extract token from request headers
+  const token = request.headers.get('_vercel_jwt') || await getToken({
     req: request,
     secret,
   });
 
+  // Debugging logs
+  console.log("Request Path:", path);
   console.log("Token:", token);
+  console.log("Request Headers:", request.headers);
 
   const privatePaths = [
     "/dashboard",
