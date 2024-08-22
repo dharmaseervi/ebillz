@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-
-  // Ensure the secret is available from environment variables
   const secret = process.env.AUTH_SECRET;
 
   if (!secret) {
@@ -16,9 +14,11 @@ export async function middleware(request: NextRequest) {
     secret,
   });
 
-  // Define paths that require authentication
-  const privatePaths = [
+  // Enhanced Debugging Logs
+  console.log("Request Path:", path);
+  console.log("Token:", token);
 
+  const privatePaths = [
     "/dashboard",
     "/clients",
     "/expenses",
@@ -32,11 +32,8 @@ export async function middleware(request: NextRequest) {
     path.startsWith(privatePath)
   );
 
-  console.log("Token:", token);
-  console.log("Path:", path);
-
-  // Redirect to login if token is missing and trying to access a protected route
   if (!token && isPrivatePath) {
+    console.log("Redirecting to login due to missing token.");
     return NextResponse.redirect(new URL("/auth/sign-in", request.nextUrl));
   }
 
