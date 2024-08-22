@@ -11,7 +11,8 @@ export async function middleware(request: NextRequest) {
 
   // Log request details
   console.log("Request Path:", path);
-  console.log("Request Headers:", request.headers);
+  console.log("Request Headers:", request.headers.get("cookie"));
+
 
   const token = await getToken({
     req: request,
