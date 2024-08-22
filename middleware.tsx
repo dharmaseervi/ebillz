@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
 
   // Define paths that require authentication
   const privatePaths = [
-  
+
     "/dashboard",
     "/clients",
     "/expenses",
@@ -31,6 +31,9 @@ export async function middleware(request: NextRequest) {
   const isPrivatePath = privatePaths.some((privatePath) =>
     path.startsWith(privatePath)
   );
+
+  console.log("Token:", token);
+  console.log("Path:", path);
 
   // Redirect to login if token is missing and trying to access a protected route
   if (!token && isPrivatePath) {
