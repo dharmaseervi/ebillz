@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials";
 import UserRegister from "@/modules/userregister";
 import bcrypt from "bcryptjs";
 import connectDB from "@/utils/mongodbConnection";
@@ -17,6 +17,7 @@ interface CustomUser {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    adapter: MongoDBAdapter(ClientPromise),
     providers: [
         NodemailerProvider({
             server: {
@@ -30,7 +31,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             from: process.env.EMAIL_FROM,
             sendVerificationRequest: sendVerificationRequest,
         }),
-        Credentials({
+        CredentialsProvider({
+            name: 'Cr edentials',
             credentials: {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" },
@@ -65,7 +67,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
         }),
     ],
-    adapter: MongoDBAdapter(ClientPromise),
+
     pages: {
         signIn: "/auth/sign-in",
     },
