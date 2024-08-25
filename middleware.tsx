@@ -15,6 +15,7 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({
       req: request,
       secret,
+      salt: "", // Add the 'salt' property with an appropriate value
     });
 
     const privatePaths = [
@@ -55,3 +56,4 @@ export const config = {
     "/settings/:path*",
   ],
 };
+ 
