@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const secret = process.env.JWT_SECRET;
+  const secret = process.env.NEXTAUTH_SECRET;
 
   if (!secret) {
     console.error("Missing JWT_SECRET environment variable.");
@@ -15,7 +15,6 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({
       req: request,
       secret,
-      cookieName: 'token',  // Read from the 'token' cookie
     });
 
     const privatePaths = [
