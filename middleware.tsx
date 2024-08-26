@@ -10,39 +10,39 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
   }
 
-  try {
-    // Extract token from cookies instead of headers
-    const token = await getToken({
-      req: request,
-      secret,
-    });
+//   try {
+//     // Extract token from cookies instead of headers
+//     const token = await getToken({
+//       req: request,
+//       secret,
+//     });
 
-    console.log("Token:", token);
+//     console.log("Token:", token);
     
-    const privatePaths = [
-      '/dashboard',
-      '/clients',
-      '/expenses',
-      '/invoice',
-      '/items',
-      '/reports',
-      '/settings',
-    ];
+//     const privatePaths = [
+//       '/dashboard',
+//       '/clients',
+//       '/expenses',
+//       '/invoice',
+//       '/items',
+//       '/reports',
+//       '/settings',
+//     ];
 
-    const isPrivatePath = privatePaths.some((privatePath) => path.startsWith(privatePath));
+//     const isPrivatePath = privatePaths.some((privatePath) => path.startsWith(privatePath));
 
-    // if (!token && isPrivatePath) {
-    //   console.log("Redirecting to login due to missing token.");
-    //   return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
-    // }
+//     if (!token && isPrivatePath) {
+//       console.log("Redirecting to login due to missing token.");
+//       return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
+//     }
 
-  } catch (error) {
-    console.error("Error processing token:", error);
-    return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
-  }
+//   } catch (error) {
+//     console.error("Error processing token:", error);
+//     return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
+//   }
 
-  return NextResponse.next();
-}
+//   return NextResponse.next();
+// }
 
 export const config = {
   matcher: [
