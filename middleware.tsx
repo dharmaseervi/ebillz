@@ -31,10 +31,10 @@ export async function middleware(request: NextRequest) {
 
     const isPrivatePath = privatePaths.some((privatePath) => path.startsWith(privatePath));
 
-    // if (!token && isPrivatePath) {
-    //   console.log("Redirecting to login due to missing token.");
-    //   return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
-    // }
+    if (!token && isPrivatePath) {
+      console.log("Redirecting to login due to missing token.");
+      return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
+    }
 
   } catch (error) {
     console.error("Error processing token:", error);

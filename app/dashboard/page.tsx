@@ -90,13 +90,13 @@ const Dashboard = () => {
     }
   };
 
- const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number) => {
     return value?.toLocaleString('en-IN', {
       style: 'currency',
       currency: 'INR',
     });
   };
-  
+
 
   const totalStockQuantity = stockData?.reduce((sum, item) => sum + (item.quantity || 0), 0);
   const totalStockAmount = stockData?.reduce((sum, item) => sum + ((item.quantity || 0) * (item.sellingPrice || 0)), 0);
@@ -127,7 +127,7 @@ const Dashboard = () => {
             <CardContent>
               <h1 className="text-white text-lg">Average Order Value</h1>
               <p className="text-2xl font-bold">
-                {formatCurrency(invoiceData.reduce((sum, data) => sum + (data?.totalAmount || 0), 0) / invoiceData.length)}
+                {invoiceData?.length > 0 ? formatCurrency(invoiceData?.reduce((sum, data) => sum + (data?.totalAmount || 0), 0) / invoiceData?.length) : 0}
               </p>
             </CardContent>
           </Card>
@@ -135,7 +135,7 @@ const Dashboard = () => {
             <CardContent>
               <h1 className="text-white text-lg">Highest Order Value</h1>
               <p className="text-2xl font-bold">
-                {formatCurrency(Math.max(...invoiceData.map(data => data?.totalAmount || 0)))}
+                {invoiceData?.length > 0 ? formatCurrency(Math.max(...invoiceData?.map(data => data?.totalAmount))) : 0}
               </p>
             </CardContent>
           </Card>
