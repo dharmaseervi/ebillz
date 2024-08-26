@@ -16,7 +16,6 @@ export default function SigninPage() {
     });
     const [error, setError] = useState('');
     const router = useRouter();
-
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -28,7 +27,6 @@ export default function SigninPage() {
             });
 
             if (res && res.error) {
-                console.log(res);
                 setError(res.error);
                 return;
             }
