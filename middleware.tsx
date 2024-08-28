@@ -5,44 +5,53 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const secret = process.env.NEXTAUTH_SECRET;
 
+  console.log('Received request for:', path);  // Log request path
+
   if (!secret) {
-    console.error("Missing JWT_SECRET environment variable.");
+    console.error("Missing NEXTAUTH_SECRET environment variable.");
     return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
   }
 
-//   try {
-//     // Extract token from cookies instead of headers
-//     const token = await getToken({
-//       req: request,
-//       secret,
-//     });
+  try {
+    // Extract token from cookies instead of headers
+    const token = await getToken({
+      req: request,
+      secret,
+    });
 
-//     console.log("Token:", token);
+    if (!token) {
+      console.log('Token not found in request:', {
+        cookies: request.cookies,
+        headers: request.headers,
+      });
+    } else {
+      console.log("Token found:", token);
+    }
     
-//     const privatePaths = [
-//       '/dashboard',
-//       '/clients',
-//       '/expenses',
-//       '/invoice',
-//       '/items',
-//       '/reports',
-//       '/settings',
-//     ];
+    const privatePaths = [
+      '/dashboard',
+      '/clients',
+      '/expenses',
+      '/invoice',
+      '/items',
+      '/reports',
+      '/settings',
+    ];
 
-//     const isPrivatePath = privatePaths.some((privatePath) => path.startsWith(privatePath));
+    const isPrivatePath = privatePaths.some((privatePath) => path.startsWith(privatePath));
 
-//     if (!token && isPrivatePath) {
-//       console.log("Redirecting to login due to missing token.");
-//       return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
-//     }
+    if (!token && isPrivatePath) {
+      console.log("Redirecting to login due to missing token.");
+      return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
+    }
 
-//   } catch (error) {
-//     console.error("Error processing token:", error);
-//     return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
-//   }
+  } catch (error) {
+    console.error("Error processing token:", error);
+    return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
+  }
 
-//   return NextResponse.next();
-// }
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
