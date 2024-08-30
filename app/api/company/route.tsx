@@ -1,25 +1,23 @@
 import Company from '@/modules/company';
 import connectDB from '@/utils/mongodbConnection';
-import { NextResponse } from 'next/server';
-import { auth } from "@/auth"
+import { NextRequest, NextResponse } from 'next/server';
+import { getAuth } from '@clerk/nextjs/server'; // Import Clerk's getAuth method
 
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     await connectDB();
 
-    // Get the session for the current user
-    const session: any = await auth();
-    
-    if (!session || !session.user) {
-        return NextResponse.json({ success: false, error: 'User not authenticated' });
-    }
-
     try {
+        // Get the authenticated user's session using Clerk
+        const { userId } = await getAuth(request);
+
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' }, { status: 401 });
+        }
+
         // Parse the incoming company data
         const companyData = await request.json();
 
         // Add userId to the company data
-        const userId = session.user._id;
         const companyNew = new Company({ ...companyData, userId });
 
         // Save the new company data with userId
@@ -28,23 +26,21 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, company: companyNew });
     } catch (error) {
         console.error('Error creating company:', error);
-        return NextResponse.json({ success: false, error: error});
+        return NextResponse.json({ success: false, error: error.message || 'Error creating company' });
     }
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     await connectDB();
 
-    // Get the session for the current user
-    const session: any = await auth();
-    
-    if (!session || !session.user) {
-        return NextResponse.json({ success: false, error: 'User not authenticated' });
-    }
-
-    const userId = session.user._id;
-
     try {
+        // Get the authenticated user's session using Clerk
+        const { userId } = await getAuth(request);
+
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' }, { status: 401 });
+        }
+
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
@@ -61,12 +57,11 @@ export async function GET(request: Request) {
         return NextResponse.json({ success: true, company });
     } catch (error) {
         console.error('Error fetching company:', error);
-        return NextResponse.json({ success: false, error: error });
+        return NextResponse.json({ success: false, error: error.message || 'Error fetching company' });
     }
 }
 
-
-export async function PUT(request:Request) {
+export async function PUT(request: NextRequest) {
     await connectDB();
 
     try {
@@ -76,16 +71,24 @@ export async function PUT(request:Request) {
 
         if (!id) throw new Error('Company ID is required');
 
-        const updatedCompany = await Company.findByIdAndUpdate(id, companyData, { new: true });
-        if (!updatedCompany) throw new Error('Company not found');
+        // Get the authenticated user's session using Clerk
+        const { userId } = await getAuth(request);
+
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' }, { status: 401 });
+        }
+
+        const updatedCompany = await Company.findOneAndUpdate({ _id: id, userId }, companyData, { new: true });
+        if (!updatedCompany) throw new Error('Company not found or not authorized');
 
         return NextResponse.json({ success: true, company: updatedCompany });
     } catch (error) {
-        return NextResponse.json({ success: false, error: error});
+        console.error('Error updating company:', error);
+        return NextResponse.json({ success: false, error: error.message || 'Error updating company' });
     }
 }
 
-export async function DELETE(request:Request) {
+export async function DELETE(request: NextRequest) {
     await connectDB();
 
     try {
@@ -94,11 +97,19 @@ export async function DELETE(request:Request) {
 
         if (!id) throw new Error('Company ID is required');
 
-        const deletedCompany = await Company.findByIdAndDelete(id);
-        if (!deletedCompany) throw new Error('Company not found');
+        // Get the authenticated user's session using Clerk
+        const { userId } = await getAuth(request);
+
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' }, { status: 401 });
+        }
+
+        const deletedCompany = await Company.findOneAndDelete({ _id: id, userId });
+        if (!deletedCompany) throw new Error('Company not found or not authorized');
 
         return NextResponse.json({ success: true, message: 'Company deleted successfully' });
     } catch (error) {
-        return NextResponse.json({ success: false, error: error});
+        console.error('Error deleting company:', error);
+        return NextResponse.json({ success: false, error: error.message || 'Error deleting company' });
     }
 }

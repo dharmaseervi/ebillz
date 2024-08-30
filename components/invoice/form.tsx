@@ -76,7 +76,6 @@ const currentDate = new Date();
 const formattedDate = formatDate(currentDate);
 
 export default function Form() {
-    const session = useSession()
     const [formData, setFormData] = useState<FormData>({
         invoiceNumber: 0,
         customerName: '',

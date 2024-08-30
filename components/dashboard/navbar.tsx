@@ -1,7 +1,7 @@
 "use client"
 import * as React from "react"
 
-import { useSession } from "next-auth/react"
+// import { useSession } from "next-auth/react"
 import NavDropdownMenu from "./NavbarDropDown"
 
 
@@ -45,8 +45,8 @@ const components: { title: string; href: string; description: string }[] = [
 ]
 
 export default function Navbar() {
-    const session = useSession()
-    const user = session.data?.user;
+    // const session = useSession()
+    // const user = session.data?.user;
     return (
         <div className="flex justify-between bg-gray-700 py-5 px-5">
             <div className="flex justify-center items-center ">

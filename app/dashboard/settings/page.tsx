@@ -120,7 +120,7 @@ const CompanyList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {companies.map((company) => (
+              {companies?.map((company) => (
                 <TableRow key={company._id}>
                   <TableCell>{company.companyName}</TableCell>
                   <TableCell>{company.address}</TableCell>

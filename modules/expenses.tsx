@@ -22,8 +22,7 @@ const ExpenseSchema = new mongoose.Schema({
     required: false,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     required: true
   },
 

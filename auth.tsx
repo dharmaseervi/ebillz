@@ -75,6 +75,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         strategy: "jwt", // or "database" depending on your storage strategy
     },
     secret: process.env.AUTH_SECRET, 
+    trustHost: process.env.AUTH_TRUST_HOST === 'true',
     callbacks: {
         async jwt({ token, user }) {
             if (user) {

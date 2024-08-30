@@ -1,21 +1,23 @@
-import connectDB from '../../../utils/mongodbConnection'
-import { NextResponse } from 'next/server'
+import connectDB from '../../../utils/mongodbConnection';
+import { NextResponse } from 'next/server';
 import Customer from '../../../modules/customers';
-import { auth } from "@/auth"
+import { clerkClient, getAuth } from '@clerk/nextjs/server';
 
 export async function POST(request: Request) {
     await connectDB();
 
     try {
         const { fullName, email, phone, address, city, state, zip } = await request.json();
-        console.log(fullName, email, phone, address, city, state, zip);
+        if (!fullName || !email || !phone || !address || !city || !state || !zip) {
+            return NextResponse.json({ success: false, error: 'Missing required fields' });
+        }
 
-        const session: any = await auth();
+        const { userId } = getAuth(request);
 
-        if (!session || !session.user) {
+        if (!userId) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }
-        const userId = session.user._id;
+
         // Create a new customer instance
         const newCustomer = new Customer({
             fullName,
@@ -46,13 +48,10 @@ export async function GET(request: Request) {
         const search = searchParams.get('search')?.trim() || '';
         const id = searchParams.get('id');
 
-        // Get the session for the current user
-        const session: any = await auth();
-        if (!session || !session.user) {
+        const { userId } = getAuth(request);
+        if (!userId) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }
-
-        const userId = session.user._id; // Assuming session.user._id holds the logged-in user ID
 
         let customers;
 
@@ -83,18 +82,27 @@ export async function GET(request: Request) {
         return NextResponse.json({ success: false, error: 'Error fetching customers' });
     }
 }
+
 export async function PUT(request: Request) {
     await connectDB();
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-
-    if (!id) {
-        return NextResponse.json({ success: false, error: 'Customer ID is required' });
-    }
 
     try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (!id) {
+            return NextResponse.json({ success: false, error: 'Customer ID is required' });
+        }
+
         const { fullName, email, phone, address, city, state, zip } = await request.json();
-        console.log(fullName, email, phone, address, city, state, zip);
+        if (!fullName || !email || !phone || !address || !city || !state || !zip) {
+            return NextResponse.json({ success: false, error: 'Missing required fields' });
+        }
+
+        const { userId } = getAuth(request);
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' });
+        }
 
         const updatedCustomer = await Customer.findByIdAndUpdate(
             id,
@@ -121,6 +129,11 @@ export async function DELETE(request: Request) {
 
         if (!id) {
             return NextResponse.json({ success: false, error: 'Customer ID is required' });
+        }
+
+        const { userId } = getAuth(request);
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' });
         }
 
         const deletedCustomer = await Customer.findByIdAndDelete(id);

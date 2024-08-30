@@ -9,7 +9,7 @@ const CompanySchema = new mongoose.Schema({
   contactNumber: { type: String, required: true },
   email: { type: String, required: true },
   gstNumber: { type: String, required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: String, required: true },
 });
 
 // Compound indexes to ensure email and gstNumber are unique for each user

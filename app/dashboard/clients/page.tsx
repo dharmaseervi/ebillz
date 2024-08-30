@@ -60,7 +60,7 @@ export default function Clients() {
 
   const filteredCustomers = useMemo(() => {
     return customers
-      .filter((customer) => {
+      ?.filter((customer) => {
         const searchValue = search.toLowerCase();
         return (
           customer?.fullName?.toLowerCase().includes(searchValue) ||
@@ -89,7 +89,7 @@ export default function Clients() {
     }
   };
 
-  const totalPages = Math.ceil(customers.length / pageSize);
+  const totalPages = Math?.ceil(customers?.length / pageSize);
 
   const handlePageChange = (newPage: number) => {
     if (newPage > 0 && newPage <= totalPages) {
@@ -186,7 +186,7 @@ export default function Clients() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCustomers.map((customer) => (
+                {filteredCustomers?.map((customer) => (
                   <TableRow key={customer._id}>
                     <TableCell className="font-medium">{customer.fullName}</TableCell>
                     <TableCell>{customer.email}</TableCell>
@@ -202,7 +202,7 @@ export default function Clients() {
             </Table>
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
-                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, customers.length)} of {customers.length} entries
+                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, customers?.length)} of {customers?.length} entries
               </div>
               <div className="flex justify-center">
                 <PaginationPrevious onClick={() => handlePageChange(page - 1)} />

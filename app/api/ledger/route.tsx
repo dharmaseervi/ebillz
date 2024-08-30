@@ -1,22 +1,20 @@
 import ledger from '@/modules/ledger';
 import connectDB from '@/utils/mongodbConnection';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from "@/auth"
-
+import { getAuth } from '@clerk/nextjs/server'; // Import Clerk's getAuth method
 
 export async function GET(request: NextRequest) {
     await connectDB();
 
     try {
-        // Get the authenticated user's session
-        const session: any = await auth();
+        // Get the authenticated user's session using Clerk
+        const { userId } = await getAuth(request); // Pass the request to getAuth to fetch user info
 
         // Ensure the user is authenticated
-        if (!session || !session.user) {
+        if (!userId) {
             return NextResponse.json({ success: false, error: 'User not authenticated' }, { status: 401 });
         }
 
-        const userId = session.user._id; // Get the user's ID from the session
         const supplierId = request.nextUrl.searchParams.get('supplierId'); // Get supplierId from query params
 
         // Fetch ledger entries for the specific supplier and user
@@ -33,12 +31,14 @@ export async function POST(request: NextRequest) {
     await connectDB();
     try {
         const { date, particulars, vchType, vchNo, debit, credit, supplierId } = await request.json();
-        const session: any = await auth();
 
-        if (!session || !session.user) {
+        // Get the authenticated user's session using Clerk
+        const { userId } = await getAuth(request);
+
+        if (!userId) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }
-        const userId = session.user._id;
+
         // Fetch the latest entry before the new entry's date (or equal date, if time matters)
         const previousEntry = await ledger
             .findOne({ supplierId, date: { $lte: new Date(date) } })
@@ -83,11 +83,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, entry: newEntry }, { status: 201 });
     } catch (error) {
         console.error('Error saving ledger entry:', error);
-        return NextResponse.json({ success: false, error }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'Error saving ledger entry' }, { status: 400 });
     }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
     await connectDB();
     try {
         const { _id, date, particulars, vchType, vchNo, debit, credit, supplierId } = await request.json();
@@ -135,11 +135,11 @@ export async function PUT(request: Request) {
         return NextResponse.json({ success: true, entry: entryToUpdate }, { status: 200 });
     } catch (error) {
         console.error('Error updating entry:', error);
-        return NextResponse.json({ success: false, error: error }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'Error updating entry' }, { status: 400 });
     }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
     await connectDB();
     try {
         const { id } = await request.json();
@@ -176,6 +176,6 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ success: true, message: 'Entry deleted and balances updated' }, { status: 200 });
     } catch (error) {
         console.error('Error deleting entry:', error);
-        return NextResponse.json({ success: false, error: error }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'Error deleting entry' }, { status: 400 });
     }
 }

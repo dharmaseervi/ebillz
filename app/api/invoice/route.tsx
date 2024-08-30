@@ -2,17 +2,16 @@ import invoice, { IInvoice } from '@/modules/invoice';
 import InvoiceItem, { IInvoiceItem } from '@/modules/InvoiceItem';
 import connectDB from '@/utils/mongodbConnection';
 import { NextResponse } from 'next/server';
-import { auth } from "@/auth"
+import { getAuth } from "@clerk/nextjs/server"; // Import Clerk's getAuth function
 import mongoose from 'mongoose';
+
 // Helper function to parse date from DD/MM/YYYY to YYYY-MM-DD
 function parseDate(dateString: string) {
     const [day, month, year] = dateString.split('/');
-    // Log if dateString is invalid
     if (!day || !month || !year) {
         console.log('Invalid date string:', dateString);
         return null;
     }
-    // Returns the formatted date in YYYY-MM-DD
     return `${year}-${month}-${day}`;
 }
 
@@ -21,20 +20,13 @@ export async function POST(request: Request) {
 
     try {
         const { invoiceNumber, customerName, customerId, invoiceDate, dueDate, items, totalAmount } = await request.json();
-
         const parsedInvoiceDate = parseDate(invoiceDate);
 
-        // Get session data
-        const session: any = await auth();
-        if (!session || !session.user) {
+        // Get the authenticated user's ID from Clerk
+        const { userId } = getAuth(request);
+        if (!userId) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }
-
-        const userId = session?.user?._id;
-        const id = mongoose.Types.ObjectId.createFromHexString(userId)
-
-
-        console.log(id, 'from user id to invoice');
 
         // Validate invoiceDate
         if (!parsedInvoiceDate || isNaN(new Date(parsedInvoiceDate).getTime())) {
@@ -65,7 +57,7 @@ export async function POST(request: Request) {
             dueDate: parsedDueDate,
             items: invoiceItems,
             totalAmount,
-            userId: id
+            userId
         });
 
         // Save the invoice
@@ -74,24 +66,24 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, invoiceId: newInvoice._id });
     } catch (error) {
         console.error('Error saving invoice:', error);
-        return NextResponse.json({ success: false, error: error });
+        return NextResponse.json({ success: false, error: error.message });
     }
 }
 
 export async function GET(request: Request) {
     await connectDB();
 
-    // Get session data
-    const session: any = await auth();
-    if (!session || !session.user) {
-        return NextResponse.json({ success: false, error: 'User not authenticated' });
-    }
-
-    const userId = session?.user?._id;
-    const id = new URL(request.url).searchParams.get('id');
-    let invoices;
-
     try {
+        // Get the authenticated user's ID from Clerk
+        const { userId } = getAuth(request);
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' });
+        }
+
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+        let invoices;
+
         if (id) {
             // Fetch a specific invoice for the logged-in user by userId and invoiceId
             invoices = await invoice
@@ -119,22 +111,27 @@ export async function GET(request: Request) {
     }
 }
 
-
-
 export async function DELETE(request: Request) {
     await connectDB();
 
     try {
+        const { userId } = getAuth(request);
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' });
+        }
+
         const url = new URL(request.url);
         const id = url.searchParams.get('id');
         if (!id) {
             return NextResponse.json({ success: false, error: 'No ID provided' });
         }
-        const result = await invoice.findByIdAndDelete(id);
+
+        const result = await invoice.findOneAndDelete({ _id: id, userId });
 
         if (!result) {
-            return NextResponse.json({ success: false, error: 'Invoice not found' });
+            return NextResponse.json({ success: false, error: 'Invoice not found or not authorized' });
         }
+
         return NextResponse.json({ success: true, message: 'Invoice deleted successfully' });
     } catch (error) {
         console.error('Error deleting invoice:', error);
@@ -146,6 +143,11 @@ export async function PUT(request: Request) {
     await connectDB();
 
     try {
+        const { userId } = getAuth(request);
+        if (!userId) {
+            return NextResponse.json({ success: false, error: 'User not authenticated' });
+        }
+
         const url = new URL(request.url);
         const id = url.searchParams.get('id');
         const {
@@ -167,7 +169,6 @@ export async function PUT(request: Request) {
             const { _id, ...itemData } = item;
 
             if (_id) {
-                // Update existing item
                 try {
                     const updatedItem = await InvoiceItem.findByIdAndUpdate(_id, itemData, { new: true });
                     return updatedItem;
@@ -176,9 +177,8 @@ export async function PUT(request: Request) {
                     return { success: false, error: `Error updating item with ID: ${_id}` };
                 }
             } else {
-                // Create new item
                 try {
-                    const newItem = new InvoiceItem(itemData);
+                    const newItem = new InvoiceItem({ ...itemData, userId });
                     await newItem.save();
                     return newItem;
                 } catch (error) {
@@ -195,19 +195,23 @@ export async function PUT(request: Request) {
             return NextResponse.json({ success: false, errors: failedUpdates });
         }
 
-        const updatedInvoice = await invoice.findByIdAndUpdate(id, {
-            invoiceNumber,
-            customerName,
-            customerId,
-            invoiceDate: invoiceDate ? new Date(invoiceDate) : undefined,
-            dueDate: dueDate ? new Date(dueDate) : undefined,
-            items: items.length > 0 ? updatedItems.filter(result => result && result.success !== false) : undefined,
-            invoiceStatus,
-            totalAmount,
-        }, { new: true });
+        const updatedInvoice = await invoice.findOneAndUpdate(
+            { _id: id, userId },
+            {
+                invoiceNumber,
+                customerName,
+                customerId,
+                invoiceDate: invoiceDate ? new Date(invoiceDate) : undefined,
+                dueDate: dueDate ? new Date(dueDate) : undefined,
+                items: items.length > 0 ? updatedItems.filter(result => result && result.success !== false) : undefined,
+                invoiceStatus,
+                totalAmount,
+            },
+            { new: true }
+        );
 
         if (!updatedInvoice) {
-            return NextResponse.json({ success: false, error: 'Invoice not found' });
+            return NextResponse.json({ success: false, error: 'Invoice not found or not authorized' });
         }
 
         return NextResponse.json({ success: true, invoice: updatedInvoice });

@@ -1,20 +1,20 @@
 import suppliers from '@/modules/suppliers';
 import connectDB from '@/utils/mongodbConnection';
-import { NextResponse } from 'next/server';
-import { auth } from "@/auth"
+import { NextRequest, NextResponse } from 'next/server';
+import { getAuth } from '@clerk/nextjs/server'; // Import Clerk's getAuth method
 
-
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     await connectDB();
 
     try {
-        // Authenticate the user
-        const session: any = await auth();
-        if (!session || !session.user) {
+        // Get the authenticated user's session using Clerk
+        const { userId } = await getAuth(request); // Pass the request to getAuth to fetch user info
+
+        // Ensure the user is authenticated
+        if (!userId) {
             return NextResponse.json({ success: false, error: 'User not authenticated' }, { status: 401 });
         }
 
-        const userId = session.user._id; // Get the user's ID from the session
         const { searchParams } = new URL(request.url);
         const search = searchParams.get('search')?.trim() || '';
         const id = searchParams.get('id');
@@ -42,15 +42,17 @@ export async function GET(request: Request) {
     }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     await connectDB();
     try {
         const data = await request.json();
-        const session: any = await auth();
-        if (!session || !session.user) {
+        // Get the authenticated user's session using Clerk
+        const { userId } = await getAuth(request);
+
+        if (!userId) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }
-        const userId = session.user._id;
+
         const newSupplier = new suppliers({ ...data, userId }); // Ensure you are using the correct model
         console.log(newSupplier, 'supplier data before saving');
 
@@ -63,26 +65,29 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: error });
     }
 }
-export async function PUT(request: Request) {
+
+export async function PUT(request: NextRequest) {
     await connectDB();
     try {
         const data = await request.json();
-        const supplier = await suppliers.findByIdAndUpdate(data._id, data, {
-            new: true,
-        });
+        // Update the supplier
+        const supplier = await suppliers.findByIdAndUpdate(data._id, data, { new: true });
         return NextResponse.json({ success: true, supplier });
     } catch (error) {
+        console.error('Error updating supplier:', error);
         return NextResponse.json({ success: false, error: error });
     }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
     await connectDB();
     try {
         const { id } = await request.json();
+        // Delete the supplier
         await suppliers.findByIdAndDelete(id);
         return NextResponse.json({ success: true });
     } catch (error) {
+        console.error('Error deleting supplier:', error);
         return NextResponse.json({ success: false, error: error });
     }
 }

@@ -10,7 +10,7 @@ export interface IInvoiceItem extends Document {
     amount: number;
     desc?: string;
     unit: string;
-    userId:Types.ObjectId;
+    userId: string;
 }
 
 const invoiceItemSchema = new Schema<IInvoiceItem>({
@@ -23,7 +23,7 @@ const invoiceItemSchema = new Schema<IInvoiceItem>({
     amount: { type: Number, required: true },
     desc: { type: String, required: false },
     unit: { type: String, required: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: String, required: true },
 });
 
 export default mongoose.models?.InvoiceItem || mongoose.model<IInvoiceItem>('InvoiceItem', invoiceItemSchema);

@@ -9,7 +9,7 @@ interface ILedger extends Document {
     credit: number;
     balance: number;
     supplierId: mongoose.Types.ObjectId;
-    userId:Types.ObjectId;
+    userId: string;
 }
 
 const LedgerSchema: Schema = new Schema({
@@ -21,7 +21,7 @@ const LedgerSchema: Schema = new Schema({
     credit: { type: Number, default: 0 },
     balance: { type: Number, required: true },
     supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: String, required: true },
 });
 
 export default mongoose.models.Ledger || mongoose.model<ILedger>('Ledger', LedgerSchema);

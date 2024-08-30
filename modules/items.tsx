@@ -8,18 +8,18 @@ export interface ProductDocument extends Document {
     sellingPrice: number;
     quantity: number;
     description: string;
-    userId:Types.ObjectId;
+    userId: string;
 }
 
 // Define the schema for the Product document
-const ProductSchema: Schema<ProductDocument> = new Schema({ 
+const ProductSchema: Schema<ProductDocument> = new Schema({
     name: { type: String, required: true },
     unit: { type: String, required: true },
     hsnCode: { type: String, required: true },
     sellingPrice: { type: Number, required: true },
     quantity: { type: Number, required: true },
     description: { type: String, required: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: String, required: true },
 });
 
 // Export the Product model based on ProductDocument

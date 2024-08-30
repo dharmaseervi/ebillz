@@ -1,22 +1,20 @@
 import connectDB from '@/utils/mongodbConnection';
 import { NextResponse } from 'next/server';
-import invoice from '@/modules/invoice';
-import { auth } from "@/auth"; // Assuming you have an auth function
+import Invoice from '@/modules/invoice'; // Ensure this is the correct import for your invoice model
+import { getAuth } from '@clerk/nextjs/server'; // Use Clerk's method for getting auth
 
 export async function GET(request: Request) {
     await connectDB();
 
     try {
-        // Get the authenticated user
-        const session: any = await auth();
-
-        if (!session || !session.user) {
+        // Get user session from Clerk
+        const { userId } = await getAuth(request);
+        if (!userId) {
             return NextResponse.json({ success: false, error: 'User not authenticated' });
         }
 
-        const userId = session.user._id;
         // Get the user's invoices sorted by invoiceNumber in descending order
-        const latestInvoice = await invoice.findOne({ userId }).sort({ invoiceNumber: -1 }).exec();
+        const latestInvoice = await Invoice.findOne({ userId }).sort({ invoiceNumber: -1 }).exec();
 
         // Handle if no invoices are found
         const latestInvoiceNumber = latestInvoice ? latestInvoice.invoiceNumber : 0;

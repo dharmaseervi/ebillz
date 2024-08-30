@@ -10,7 +10,7 @@ export interface IPurchaseInvoice extends Document {
     items: Types.ObjectId[];
     invoiceStatus: string;
     totalAmount: Number;
-    userId:Types.ObjectId;
+    userId:string;
 }
 
 const purchaseInvoiceSchema = new Schema<IPurchaseInvoice>({
@@ -23,7 +23,7 @@ const purchaseInvoiceSchema = new Schema<IPurchaseInvoice>({
     items: [{ type: Schema.Types.ObjectId, ref: 'InvoiceItem' }],
     invoiceStatus: { type: String, enum: ['paid', 'not paid', 'pending'], default: 'not paid' },
     totalAmount: { type: Number, required: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type:String,  required: true },
 });
 
 export default mongoose.models?.PurchaseInvoice || mongoose.model<IPurchaseInvoice>('PurchaseInvoice', purchaseInvoiceSchema);

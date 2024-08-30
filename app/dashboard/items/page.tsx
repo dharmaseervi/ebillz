@@ -65,7 +65,7 @@ export default function AddItems() {
 
   const filteredProducts = useMemo(() => {
     return products
-      .filter((product) => {
+      ?.filter((product) => {
         const searchValue = search.toLowerCase();
         return (
           product?.name?.toLowerCase().includes(searchValue) ||
@@ -180,7 +180,7 @@ export default function AddItems() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProducts.map((product) => (
+                {filteredProducts?.map((product) => (
                   <TableRow key={product._id}>
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell>{product.hsnCode}</TableCell>
@@ -198,7 +198,7 @@ export default function AddItems() {
             </Table>
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
-                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, products.length)} of {products.length} entries
+                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, products?.length)} of {products?.length} entries
               </div>
               <Pagination
                

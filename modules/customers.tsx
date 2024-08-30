@@ -10,7 +10,7 @@ export interface ICustomer extends Document {
     state?: string;
     zip?: number;
     createdAt?: Date;
-    userId: Types.ObjectId;
+    userId: string;
 }
 
 // Define the Customer schema
@@ -23,7 +23,7 @@ const customerSchema: Schema = new Schema({
     state: { type: String },
     zip: { type: Number },
     createdAt: { type: Date, default: Date.now },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: String, required: true },
 });
 
 // Create a compound unique index on email and userId
