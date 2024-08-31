@@ -1,20 +1,40 @@
 import { SignIn } from '@clerk/nextjs';
+import Image from 'next/image';
 
 export default function SignInPage() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-200 via-blue-300 to-blue-400">
-      <div className="w-full max-w-sm p-8 bg-white shadow-lg rounded-lg ring-1 ring-gray-300">
-        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">Welcome Back</h1>
-        <SignIn
-          path="/sign-in"
-          routing="path"
-          signInButtonProps={{
-            className: "w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
-          }}
-          signUpButtonProps={{
-            className: "w-full bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800 py-2 rounded-lg shadow-md hover:from-gray-400 hover:to-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50",
-          }}
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Background Image Section */}
+      <div className="hidden lg:block w-1/2 relative">
+        <Image
+          src="/bg.jpg" // Use a suitable image URL
+          alt="Background Image"
+          layout="fill"
+          objectFit="contain"
+          className="absolute inset-0"
         />
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div> {/* Optional overlay for better text visibility */}
+      </div>
+
+      {/* Sign In Form Section */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-8 shadow-lg rounded-lg">
+        <div className="w-full max-w-sm">
+          <div className="flex justify-center mb-6">
+            <Image src='/logo.jpg' alt="eBillz Logo" width={100} height={100} />
+          </div>
+          <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">Welcome Back</h1>
+          <SignIn
+            path="/sign-in"
+            routing="path"
+            appearance={{
+              elements: {
+                footer: {
+                  display: 'none',
+                },
+              },
+            }}
+          />
+        </div>
       </div>
     </div>
   );

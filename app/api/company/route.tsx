@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, company: companyNew });
     } catch (error) {
         console.error('Error creating company:', error);
-        return NextResponse.json({ success: false, error: error.message || 'Error creating company' });
+        return NextResponse.json({ success: false, error: error || 'Error creating company' });
     }
 }
 
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: true, company });
     } catch (error) {
         console.error('Error fetching company:', error);
-        return NextResponse.json({ success: false, error: error.message || 'Error fetching company' });
+        return NextResponse.json({ success: false, error: error || 'Error fetching company' });
     }
 }
 
@@ -84,7 +84,7 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ success: true, company: updatedCompany });
     } catch (error) {
         console.error('Error updating company:', error);
-        return NextResponse.json({ success: false, error: error.message || 'Error updating company' });
+        return NextResponse.json({ success: false, error: error || 'Error updating company' });
     }
 }
 
@@ -110,6 +110,6 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ success: true, message: 'Company deleted successfully' });
     } catch (error) {
         console.error('Error deleting company:', error);
-        return NextResponse.json({ success: false, error: error.message || 'Error deleting company' });
+        return NextResponse.json({ success: false, error: error || 'Error deleting company' });
     }
 }
