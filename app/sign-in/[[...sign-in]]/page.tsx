@@ -6,14 +6,7 @@ export default function SignInPage() {
     <div className="flex min-h-screen bg-gray-100">
       {/* Background Image Section */}
       <div className="hidden lg:block w-1/2 relative">
-        <Image
-          src="/bg.jpg" // Use a suitable image URL
-          alt="Background Image"
-          layout="fill"
-          objectFit="contain"
-          className="absolute inset-0"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div> {/* Optional overlay for better text visibility */}
+        <div className="absolute inset-0 bg-black "></div> {/* Optional overlay for better text visibility */}
       </div>
 
       {/* Sign In Form Section */}
@@ -26,13 +19,7 @@ export default function SignInPage() {
           <SignIn
             path="/sign-in"
             routing="path"
-            appearance={{
-              elements: {
-                footer: {
-                  display: 'none',
-                },
-              },
-            }}
+            
           />
         </div>
       </div>
