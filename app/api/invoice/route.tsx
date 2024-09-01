@@ -1,7 +1,7 @@
 import invoice, { IInvoice } from '@/modules/invoice';
 import InvoiceItem, { IInvoiceItem } from '@/modules/InvoiceItem';
 import connectDB from '@/utils/mongodbConnection';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from "@clerk/nextjs/server"; // Import Clerk's getAuth function
 import mongoose from 'mongoose';
 
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     }
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     await connectDB();
 
     try {
