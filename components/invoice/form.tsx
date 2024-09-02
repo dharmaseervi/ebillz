@@ -535,7 +535,7 @@ export default function Form() {
                                         className="lg:w-full w-44 "
                                     />
                                     {index === activeRowIndex && isFocused && itemSearchResults?.length > 0 && (
-                                        <ul className="absolute z-50 border border-gray-300 w-full mt-2 rounded-lg shadow-lg bg-white max-h-96 overflow-auto">
+                                        <ul className="absolute z-10 border border-gray-300 w-full mt-2 rounded-lg shadow-lg bg-white max-h-96">
                                             {itemSearchResults.map((item) => (
                                                 <li
                                                     key={item.name}
@@ -602,10 +602,10 @@ export default function Form() {
                                             handleChangeRow(index, {
                                                 target: {
                                                     name: 'tax',
-                                                    value, // Value is already a string, so no need to parse
+                                                    value, 
                                                 },
                                             } as unknown as React.ChangeEvent<HTMLInputElement>)
-                                        } // Cast the event as ChangeEvent<HTMLInputElement>
+                                        } 
                                     >
                                         <SelectTrigger className="w-[100px]">
                                             <SelectValue placeholder="Tax %" />

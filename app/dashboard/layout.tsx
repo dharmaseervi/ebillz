@@ -8,7 +8,7 @@ type LayoutProps = {
 };
 
 export default function Layout({ children }: LayoutProps) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(prev => !prev);

@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo, useCallback, useEffect, useState } from 'react';
-import { useMediaQuery } from 'react-responsive';
+
 const useIsSmallScreen = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth <= 768);
 
@@ -17,11 +17,15 @@ const useIsSmallScreen = () => {
 
   return isSmallScreen;
 };
+interface SideNavbarProps {
+  isSidebarOpen: boolean;
+  onToggleSidebar: () => void;
+}
 
-const SideNavbar = ({ isSidebarOpen, onToggleSidebar }) => {
+
+const SideNavbar: React.FC<SideNavbarProps> = ({ isSidebarOpen, onToggleSidebar }) => {
   const pathname = usePathname();
   const isSmallScreen = useIsSmallScreen(); 
-
 
   const menuItems = useMemo(
     () => [
