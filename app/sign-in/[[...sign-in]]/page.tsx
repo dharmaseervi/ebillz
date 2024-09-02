@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function SignInPage() {
   return (
-    <div className="flex min-h-screen bg-black">
+    <div className="lg:grid lg:grid-cols-2 flex w-full h-screen lg:flex-row min-h-screen  justify-center items-center">
       {/* Background Image Section */}
       <div className="hidden lg:flex lg:w-1/2 relative justify-center items-center bg-gray-900">
         <div className="text-center p-8">
@@ -14,8 +14,8 @@ export default function SignInPage() {
       </div>
 
       {/* Sign In Form Section */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-8 lg:p-16">
-        <div className="w-full max-w-md">
+      <div className=" flex items-center justify-center  bg-white p-8 lg:p-16  ">
+        <div className="">
           <div className="flex justify-center mb-6">
             <Image src='/logo.jpg' alt="eBillz Logo" width={100} height={100} />
           </div>
