@@ -72,7 +72,7 @@ const CompanyList = () => {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-6 max-w-7xl mx-auto space-y-6 ">
       <Card>
         <CardHeader>
           <CardTitle>Company Management</CardTitle>
@@ -105,45 +105,47 @@ const CompanyList = () => {
               </DialogContent>
             </Dialog>
           </div>
-          <Table className="mt-8">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Company Name</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>City</TableHead>
-                <TableHead>State</TableHead>
-                <TableHead>Zip</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>GST</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {companies?.map((company) => (
-                <TableRow key={company._id}>
-                  <TableCell>{company.companyName}</TableCell>
-                  <TableCell>{company.address}</TableCell>
-                  <TableCell>{company.city}</TableCell>
-                  <TableCell>{company.state}</TableCell>
-                  <TableCell>{company.zip}</TableCell>
-                  <TableCell>{company.contactNumber}</TableCell>
-                  <TableCell>{company.email}</TableCell>
-                  <TableCell>{company.gstNumber}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button onClick={() => handleEdit(company)} className="flex items-center bg-yellow-500 text-white py-1 px-2 rounded">
-                        <Edit3 className="mr-1" size={16} /> Edit
-                      </Button>
-                      <Button onClick={() => handleDelete(company._id)} className="flex items-center bg-red-500 text-white py-1 px-2 rounded">
-                        <Trash2 className="mr-1" size={16} /> Delete
-                      </Button>
-                    </div>
-                  </TableCell>
+          <div className='overflow-x-auto'>
+            <Table className="mt-8">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Company Name</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead>City</TableHead>
+                  <TableHead>State</TableHead>
+                  <TableHead>Zip</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>GST</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {companies?.map((company) => (
+                  <TableRow key={company._id}>
+                    <TableCell>{company.companyName}</TableCell>
+                    <TableCell>{company.address}</TableCell>
+                    <TableCell>{company.city}</TableCell>
+                    <TableCell>{company.state}</TableCell>
+                    <TableCell>{company.zip}</TableCell>
+                    <TableCell>{company.contactNumber}</TableCell>
+                    <TableCell>{company.email}</TableCell>
+                    <TableCell>{company.gstNumber}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button onClick={() => handleEdit(company)} className="flex items-center bg-yellow-500 text-white py-1 px-2 rounded">
+                          <Edit3 className="mr-1" size={16} /> Edit
+                        </Button>
+                        <Button onClick={() => handleDelete(company._id)} className="flex items-center bg-red-500 text-white py-1 px-2 rounded">
+                          <Trash2 className="mr-1" size={16} /> Delete
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

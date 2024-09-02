@@ -60,7 +60,7 @@ const ProductForm = () => {
 
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-full mx-auto rounded p-16">
+        <form onSubmit={handleSubmit} className="space-y-4 max-w-lg mx-auto rounded p-5">
             <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
                 <input

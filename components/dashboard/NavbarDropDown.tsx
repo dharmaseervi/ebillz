@@ -31,7 +31,7 @@ export default function NavDropdownMenu() {
             <SignedIn>
                 <div className="flex items-center gap-2 text-white">
                     <UserButton />
-                    <div> {user.emailAddresses[0].emailAddress}</div>
+                    {/* <div> {user.emailAddresses[0].emailAddress}</div> */}
                 </div>
             </SignedIn>
         </div>

@@ -503,132 +503,135 @@ export default function Form() {
                     </div>
                 </div>
             </div>
-
-            <Table className="mt-8">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[10px]">No</TableHead>
-                        <TableHead>Item Details</TableHead>
-                        <TableHead>HSN/SAC</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Unit</TableHead>
-                        <TableHead>Rate</TableHead>
-                        <TableHead>Discount %</TableHead>
-                        <TableHead>Tax %</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead className="w-[10px]">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {rows.map((row, index) => (
-                        <TableRow key={index}>
-                            <TableCell>{index + 1}</TableCell>
-                            <TableCell className="relative w-[250px]">
-                                <Input
-                                    type="text"
-                                    name="itemDetails"
-                                    value={row.itemDetails}
-                                    onChange={(e) => handleChangeRowItemDetails(index, e)}
-                                    onFocus={() => handleFocus(index)}
-                                    autoComplete='off'
-                                    onBlur={() => setTimeout(() => setIsFocused(false), 100)}
-                                />
-                                {index === activeRowIndex && isFocused && itemSearchResults.length > 0 && (
-                                    <ul className="absolute z-50 border border-gray-300 w-full mt-2 rounded-lg shadow-lg bg-white max-h-96 overflow-auto">
-                                        {itemSearchResults.map((item) => (
-                                            <li
-                                                key={item.name}
-                                                onClick={() => handleSelectItem(index, item)}
-                                                className="p-3 flex flex-col cursor-pointer hover:bg-blue-400 border-b border-gray-200"
-                                            >
-                                                <p className="font-semibold text-gray-900">{item.name}</p>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-sm text-gray-500">₹{item.sellingPrice.toLocaleString('en-IN')}</span>
-                                                    <span className="text-sm text-gray-500">Qty: {item.quantity}</span>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-
-                            </TableCell>
-
-                            <TableCell>
-                                <Input
-                                    type="number"
-                                    name="hsn"
-                                    value={row.hsn}
-                                    onChange={(e) => handleChangeRow(index, e)}
-                                />
-                            </TableCell>
-                            <TableCell>
-                                <Input
-                                    type="number"
-                                    name="quantity"
-                                    value={row.quantity}
-                                    onChange={(e) => handleChangeRow(index, e)}
-                                />
-                            </TableCell>
-                            <TableCell>
-                                <Input
-                                    type="text"
-                                    name="unit"
-                                    value={row.unit}
-                                    onChange={(e) => handleChangeRow(index, e)}
-                                />
-                            </TableCell>
-                            <TableCell>
-                                <Input
-                                    type="number"
-                                    name="rate"
-                                    value={row.rate}
-                                    onChange={(e) => handleChangeRow(index, e)}
-                                />
-                            </TableCell>
-                            <TableCell>
-                                <Input
-                                    type="number"
-                                    name="discount"
-                                    value={row.discount}
-                                    onChange={(e) => handleChangeRow(index, e)}
-                                />
-                            </TableCell>
-                            <TableCell>
-                                <Select
-                                    value={row.tax.toString()} // Ensure tax is a string
-                                    onValueChange={(value) =>
-                                        handleChangeRow(index, {
-                                            target: {
-                                                name: 'tax',
-                                                value, // Value is already a string, so no need to parse
-                                            },
-                                        } as unknown as React.ChangeEvent<HTMLInputElement>)
-                                    } // Cast the event as ChangeEvent<HTMLInputElement>
-                                >
-                                    <SelectTrigger className="w-[100px]">
-                                        <SelectValue placeholder="Tax %" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="12">12%</SelectItem>
-                                        <SelectItem value="18">18%</SelectItem>
-                                        <SelectItem value="28">28%</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </TableCell>
-                            <TableCell>{row.amount.toFixed(2)}</TableCell>
-                            <TableCell>
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveRow(index)}
-                                    className="text-red-600 hover:text-red-900"
-                                >
-                                    Remove
-                                </button>
-                            </TableCell>
+            <div className='overflow-x-auto  lg:overflow-visible'>
+                <Table className="mt-8 ">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[10px]">No</TableHead>
+                            <TableHead>Item Details</TableHead>
+                            <TableHead>HSN/SAC</TableHead>
+                            <TableHead>Quantity</TableHead>
+                            <TableHead>Unit</TableHead>
+                            <TableHead>Rate</TableHead>
+                            <TableHead>Discount %</TableHead>
+                            <TableHead>Tax %</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead className="w-[10px]">Actions</TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody className=''>
+                        {rows.map((row, index) => (
+                            <TableRow key={index}>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell className="relative w-[250px]">
+                                    <Input
+                                        type="text"
+                                        name="itemDetails"
+                                        value={row.itemDetails}
+                                        onChange={(e) => handleChangeRowItemDetails(index, e)}
+                                        onFocus={() => handleFocus(index)}
+                                        autoComplete='off'
+                                        onBlur={() => setTimeout(() => setIsFocused(false), 100)}
+                                        className="lg:w-full w-44 "
+                                    />
+                                    {index === activeRowIndex && isFocused && itemSearchResults?.length > 0 && (
+                                        <ul className="absolute z-50 border border-gray-300 w-full mt-2 rounded-lg shadow-lg bg-white max-h-96 overflow-auto">
+                                            {itemSearchResults.map((item) => (
+                                                <li
+                                                    key={item.name}
+                                                    onClick={() => handleSelectItem(index, item)}
+                                                    className="p-3 flex flex-col cursor-pointer hover:bg-blue-400 border-b border-gray-200"
+                                                >
+                                                    <p className="font-semibold text-gray-900">{item.name}</p>
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-sm text-gray-500">₹{item.sellingPrice.toLocaleString('en-IN')}</span>
+                                                        <span className="text-sm text-gray-500">Qty: {item.quantity}</span>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+
+                                </TableCell>
+                                <TableCell>
+                                    <Input
+                                        type="number"
+                                        name="hsn"
+                                        value={row.hsn}
+                                        onChange={(e) => handleChangeRow(index, e)}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Input
+                                        type="number"
+                                        name="quantity"
+                                        value={row.quantity}
+                                        onChange={(e) => handleChangeRow(index, e)}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Input
+                                        type="text"
+                                        name="unit"
+                                        value={row.unit}
+                                        onChange={(e) => handleChangeRow(index, e)}
+                                        className='w-24 lg:w-full'
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Input
+                                        type="number"
+                                        name="rate"
+                                        value={row.rate}
+                                        onChange={(e) => handleChangeRow(index, e)}
+                                        className='w-24 lg:w-full'
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Input
+                                        type="number"
+                                        name="discount"
+                                        value={row.discount}
+                                        onChange={(e) => handleChangeRow(index, e)}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Select
+                                        value={row.tax.toString()} // Ensure tax is a string
+                                        onValueChange={(value) =>
+                                            handleChangeRow(index, {
+                                                target: {
+                                                    name: 'tax',
+                                                    value, // Value is already a string, so no need to parse
+                                                },
+                                            } as unknown as React.ChangeEvent<HTMLInputElement>)
+                                        } // Cast the event as ChangeEvent<HTMLInputElement>
+                                    >
+                                        <SelectTrigger className="w-[100px]">
+                                            <SelectValue placeholder="Tax %" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="12">12%</SelectItem>
+                                            <SelectItem value="18">18%</SelectItem>
+                                            <SelectItem value="28">28%</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </TableCell>
+                                <TableCell>{row.amount.toFixed(2)}</TableCell>
+                                <TableCell>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveRow(index)}
+                                        className="text-red-600 hover:text-red-900"
+                                    >
+                                        Remove
+                                    </button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
             <div className="flex justify-end items-center rounded">
                 <button
                     type="button"

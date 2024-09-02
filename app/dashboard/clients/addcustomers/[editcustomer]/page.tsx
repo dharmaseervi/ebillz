@@ -79,7 +79,7 @@ export default function UpdateCustomerForm({ params }: CustomerFormProps) {
     };
 
     return (
-        <div className="max-w-lg mx-auto">
+        <div className=" lg:mx-10 lg:mt-10 mt-5 mx-5 border lg:bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold mb-4">Update Customer Information</h2>
             <div className="space-y-4">
                 <div className="grid  gap-4">

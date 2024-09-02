@@ -152,7 +152,8 @@ export default function AddItems() {
                 <Label htmlFor="page-size">entries</Label>
               </div>
             </div>
-            <Table>
+            <div className="overflow-x-auto">
+            <Table className="min-w-full">
               <TableHeader>
                 <TableRow>
                   <TableHead className="cursor-pointer" onClick={() => handleSort("name")}>
@@ -196,13 +197,12 @@ export default function AddItems() {
                 ))}
               </TableBody>
             </Table>
+            </div>
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, products?.length)} of {products?.length} entries
               </div>
               <Pagination
-               
-
               />
             </div>
           </CardContent>

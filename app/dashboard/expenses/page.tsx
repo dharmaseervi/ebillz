@@ -248,6 +248,9 @@ const Expenses = () => {
             onChange={handleSearch}
           />
         </div>
+        <div className='overflow-x-auto'>
+
+    
         <table className="w-full mt-2 border-collapse table-auto">
           <thead>
             <tr className="bg-gray-100">
@@ -309,6 +312,7 @@ const Expenses = () => {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

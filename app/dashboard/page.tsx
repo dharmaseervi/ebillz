@@ -59,8 +59,6 @@ const Dashboard = () => {
     setExpenseData(data);
   };
 
-
-
   const fetchInvoiceData = async () => {
     try {
       const res = await fetch(`/api/invoice`);
@@ -97,7 +95,6 @@ const Dashboard = () => {
     });
   };
 
-
   const totalStockQuantity = stockData?.reduce((sum, item) => sum + (item.quantity || 0), 0);
   const totalStockAmount = stockData?.reduce((sum, item) => sum + ((item.quantity || 0) * (item.sellingPrice || 0)), 0);
 
@@ -105,11 +102,13 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Dashboard Overview</h1>
-        <p>Welcome to your dashboard. Here you can see an overview of your activities.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-r from-blue-400 to-indigo-500 text-white p-2">
+      <div className="p-6 ">
+        <div className="flex flex-col ">
+          <h1 className="text-2xl font-bold mb-4">Dashboard Overview</h1>
+          <p className="mb-2">Welcome to your dashboard. Here you can see an overview of your activities.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-r from-blue-400 to-indigo-500 text-white p-4">
             <CardContent>
               <h1 className="text-white text-lg">Total Revenue</h1>
               <p className="text-2xl font-bold">
@@ -117,13 +116,13 @@ const Dashboard = () => {
               </p>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-r from-green-400 to-teal-500 text-white p-2">
+          <Card className="bg-gradient-to-r from-green-400 to-teal-500 text-white p-4">
             <CardContent>
               <h1 className="text-white text-lg">Total Orders</h1>
               <p className="text-2xl font-bold">{invoiceData?.length}</p>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-r from-indigo-400 to-pink-500 text-white p-2">
+          <Card className="bg-gradient-to-r from-indigo-400 to-pink-500 text-white p-4">
             <CardContent>
               <h1 className="text-white text-lg">Average Order Value</h1>
               <p className="text-2xl font-bold">
@@ -131,7 +130,7 @@ const Dashboard = () => {
               </p>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-r from-red-400 to-orange-500 text-white p-2">
+          <Card className="bg-gradient-to-r from-red-400 to-orange-500 text-white p-4">
             <CardContent>
               <h1 className="text-white text-lg">Highest Order Value</h1>
               <p className="text-2xl font-bold">
@@ -183,7 +182,7 @@ const Dashboard = () => {
               <CardTitle>Stock Overview</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <h2 className="text-lg font-bold">Total Stock Quantity</h2>
                   <p className="text-2xl font-bold">{totalStockQuantity}</p>

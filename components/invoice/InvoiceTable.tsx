@@ -1,4 +1,5 @@
 'use client';
+
 import { useState, useMemo, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Pagination } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-
 
 interface Invoice {
   id: string;
@@ -117,8 +117,6 @@ export default function InvoiceTable() {
   };
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
-    console.log(id, newStatus, "kk");
-
     try {
       const res = await fetch(`/api/invoice?id=${id}`, {
         method: 'PUT',
@@ -137,7 +135,7 @@ export default function InvoiceTable() {
       if (data.success) {
         fetchInvoices();
       } else {
-
+        alert('Error: ' + data.message);
       }
     } catch (error) {
       console.error('Error updating status:', error);
@@ -160,9 +158,9 @@ export default function InvoiceTable() {
         <CardDescription>Manage your invoices.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between mb-4">
-          <Input placeholder="Search invoices..." value={search} onChange={handleSearch} className="max-w-xs" />
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+          <Input placeholder="Search invoices..." value={search} onChange={handleSearch} className="mb-4 sm:mb-0 sm:max-w-xs" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             <Label htmlFor="page-size">Show</Label>
             <Select value={String(pageSize)} onValueChange={(value) => handlePageSizeChange(Number(value))}>
               <SelectTrigger className="w-24">
@@ -175,78 +173,79 @@ export default function InvoiceTable() {
                 <SelectItem value="100">100</SelectItem>
               </SelectContent>
             </Select>
-
             <Label htmlFor="page-size">entries</Label>
           </div>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="cursor-pointer" onClick={() => handleSort("invoiceNumber")}>
-                Invoice
-                {sort.key === "invoiceNumber" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-              </TableHead>
-              <TableHead className="cursor-pointer" onClick={() => handleSort("customerName")}>
-                Customer
-                {sort.key === "customerName" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-              </TableHead>
-              <TableHead className="cursor-pointer" onClick={() => handleSort("invoiceDate")}>
-                Date
-                {sort.key === "invoiceDate" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-              </TableHead>
-              <TableHead className="cursor-pointer" onClick={() => handleSort("dueDate")}>
-                Due Date
-                {sort.key === "dueDate" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-              </TableHead>
-              <TableHead className="cursor-pointer text-right" onClick={() => handleSort("totalAmount")}>
-                Amount
-                {sort.key === "totalAmount" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-              </TableHead>
-              <TableHead className="cursor-pointer" onClick={() => handleSort("invoiceStatus")}>
-                Status
-                {sort.key === "invoiceStatus" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-              </TableHead>
-              <TableHead>Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredInvoices.map((invoice) => (
-              <TableRow key={invoice._id}>
-                <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
-                <TableCell>{invoice.customerName}</TableCell>
-                <TableCell>{new Date(invoice.invoiceDate).toLocaleDateString('en-GB')}</TableCell>
-                <TableCell>{new Date(invoice.dueDate).toLocaleDateString('en-GB')}</TableCell>
-                <TableCell className="text-right">
-                  {invoice?.totalAmount?.toLocaleString('en-IN', {
-                    style: 'currency',
-                    currency: 'INR',
-                  })}
-                </TableCell>
-
-                <TableCell>
-                  <Badge
-                    variant={
-                      invoice.invoiceStatus === "Paid" ? "secondary" : invoice.invoiceStatus === "not paid" ? "destructive" : "outline"
-                    }
-                  >
-                    {invoice.invoiceStatus}
-                  </Badge>
-                </TableCell>
-                <TableCell className="flex gap-2">
-                  <Button onClick={() => handleEdit(invoice._id)} className="bg-green-700">Edit</Button>
-                  <Button onClick={() => handleDelete(invoice._id)} className="bg-red-600">Delete</Button>
-                  <Button onClick={() => handlePrint(invoice._id)} className="bg-gray-800">Print</Button>
-                  <Button onClick={() => handleStatusUpdate(invoice._id, 'Paid')} className="bg-indigo-600">Mark as Paid</Button>
-                </TableCell>
+        <div className="overflow-x-auto">
+          <Table className="min-w-full">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("invoiceNumber")}>
+                  Invoice
+                  {sort.key === "invoiceNumber" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                </TableHead>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("customerName")}>
+                  Customer
+                  {sort.key === "customerName" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                </TableHead>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("invoiceDate")}>
+                  Date
+                  {sort.key === "invoiceDate" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                </TableHead>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("dueDate")}>
+                  Due Date
+                  {sort.key === "dueDate" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                </TableHead>
+                <TableHead className="cursor-pointer text-right" onClick={() => handleSort("totalAmount")}>
+                  Amount
+                  {sort.key === "totalAmount" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                </TableHead>
+                <TableHead className="cursor-pointer" onClick={() => handleSort("invoiceStatus")}>
+                  Status
+                  {sort.key === "invoiceStatus" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                </TableHead>
+                <TableHead>Action</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <div className="flex items-center justify-between mt-4">
+            </TableHeader>
+            <TableBody>
+              {filteredInvoices.map((invoice) => (
+                <TableRow key={invoice._id}>
+                  <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
+                  <TableCell>{invoice.customerName}</TableCell>
+                  <TableCell>{new Date(invoice.invoiceDate).toLocaleDateString('en-GB')}</TableCell>
+                  <TableCell>{new Date(invoice.dueDate).toLocaleDateString('en-GB')}</TableCell>
+                  <TableCell className="text-right">
+                    {invoice?.totalAmount?.toLocaleString('en-IN', {
+                      style: 'currency',
+                      currency: 'INR',
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        invoice.invoiceStatus === "Paid" ? "secondary" : invoice.invoiceStatus === "not paid" ? "destructive" : "outline"
+                      }
+                    >
+                      {invoice.invoiceStatus}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="flex flex-col sm:flex-row gap-2">
+                    <Button onClick={() => handleEdit(invoice._id)} className="bg-green-700">Edit</Button>
+                    <Button onClick={() => handleDelete(invoice._id)} className="bg-red-600">Delete</Button>
+                    <Button onClick={() => handlePrint(invoice._id)} className="bg-gray-800">Print</Button>
+                    <Button onClick={() => handleStatusUpdate(invoice._id, 'Paid')} className="bg-indigo-600">Mark as Paid</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between mt-4">
           <div className="text-sm text-muted-foreground">
             Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, invoices.length)} of {invoices.length} entries
           </div>
           <Pagination
+
           />
         </div>
       </CardContent>

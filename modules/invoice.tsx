@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
 import Customer from './customers';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IInvoice extends Document {
     invoiceNumber: Number;

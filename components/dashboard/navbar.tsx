@@ -1,49 +1,35 @@
 "use client";
 import * as React from "react";
-// import { useSession } from "next-auth/react";
 import NavDropdownMenu from "./NavbarDropDown";
 
-const components: { title: string; href: string; description: string }[] = [
-    {
-        title: "Alert Dialog",
-        href: "/docs/primitives/alert-dialog",
-        description: "A modal dialog that interrupts the user with important content and expects a response.",
-    },
-    {
-        title: "Hover Card",
-        href: "/docs/primitives/hover-card",
-        description: "For sighted users to preview content available behind a link.",
-    },
-    {
-        title: "Progress",
-        href: "/docs/primitives/progress",
-        description: "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-    },
-    {
-        title: "Scroll-area",
-        href: "/docs/primitives/scroll-area",
-        description: "Visually or semantically separates content.",
-    },
-    {
-        title: "Tabs",
-        href: "/docs/primitives/tabs",
-        description: "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-    },
-    {
-        title: "Tooltip",
-        href: "/docs/primitives/tooltip",
-        description: "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-    },
-];
+type NavbarProps = {
+    toggleSidebar: () => void;
+    isSidebarOpen: boolean;
+    
 
-export default function Navbar() {
-    // const session = useSession();
-    // const user = session.data?.user;
+};
 
+const HamburgerIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 6h15m-15 6h15m-15 6h15" />
+    </svg>
+  );
+  
+  const CloseIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+
+
+export default function Navbar({ toggleSidebar ,isSidebarOpen }: NavbarProps) {
     return (
-        <div className="flex justify-between items-center bg-gray-900 py-4 px-6 shadow-md">
+        <div className="flex justify-between items-center bg-black-200 py-4 px-6 shadow-md">
             <div className="flex items-center">
-                <h1 className="text-3xl font-extrabold text-white tracking-tight">
+                <button onClick={toggleSidebar} className="text-white sm:hidden">
+                {isSidebarOpen ? <CloseIcon /> : <HamburgerIcon />}
+                </button>
+                <h1 className="text-3xl font-extrabold text-white tracking-tight ml-4">
                     Dashboard
                 </h1>
             </div>

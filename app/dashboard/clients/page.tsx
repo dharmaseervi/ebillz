@@ -12,7 +12,7 @@ import {
 import {
   Table, TableHeader, TableRow, TableHead, TableBody, TableCell
 } from "@/components/ui/table";
-import { PaginationContent, PaginationItem, PaginationNext, PaginationPrevious, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination";
+import { PaginationContent, PaginationItem, PaginationNext, PaginationPrevious, PaginationLink } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 
 interface Customer {
@@ -131,18 +131,18 @@ export default function Clients() {
 
   return (
     <div className='p-4'>
-      <div>
+      <div className="mb-4">
         <Button onClick={handleAddProduct} className='bg-black-100 rounded px-4 py-2 text-white'>Add customers</Button>
       </div>
       <div className='mt-5'>
         <Card>
-          <CardHeader className="px-7">
+          <CardHeader className="px-4 sm:px-6 md:px-7">
             <CardTitle>Customers</CardTitle>
             <CardDescription>Manage your customers.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <Input placeholder="Search customers..." value={search} onChange={handleSearch} className="max-w-xs" />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
+              <Input placeholder="Search customers..." value={search} onChange={handleSearch} className="w-full max-w-xs" />
               <div className="flex items-center gap-2">
                 <Label htmlFor="page-size">Show</Label>
                 <Select
@@ -163,48 +163,50 @@ export default function Clients() {
                 <Label htmlFor="page-size">entries</Label>
               </div>
             </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("fullName")}>
-                    Customer Name
-                    {sort.key === "fullName" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-                  </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("email")}>
-                    Email
-                    {sort.key === "email" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-                  </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("phone")}>
-                    Phone Number
-                    {sort.key === "phone" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-                  </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("city")}>
-                    City
-                    {sort.key === "city" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
-                  </TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCustomers?.map((customer) => (
-                  <TableRow key={customer._id}>
-                    <TableCell className="font-medium">{customer.fullName}</TableCell>
-                    <TableCell>{customer.email}</TableCell>
-                    <TableCell>{customer.phone}</TableCell>
-                    <TableCell>{customer.city}</TableCell>
-                    <TableCell className="flex gap-2">
-                      <Button onClick={() => handleEdit(customer._id)} className="bg-green-700">Edit</Button>
-                      <Button onClick={() => handleDelete(customer._id)} className="bg-red-600">Delete</Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table className="min-w-full">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="cursor-pointer" onClick={() => handleSort("fullName")}>
+                      Customer Name
+                      {sort.key === "fullName" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                    </TableHead>
+                    <TableHead className="cursor-pointer" onClick={() => handleSort("email")}>
+                      Email
+                      {sort.key === "email" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                    </TableHead>
+                    <TableHead className="cursor-pointer" onClick={() => handleSort("phone")}>
+                      Phone Number
+                      {sort.key === "phone" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                    </TableHead>
+                    <TableHead className="cursor-pointer" onClick={() => handleSort("city")}>
+                      City
+                      {sort.key === "city" && <span className="ml-1">{sort.order === "asc" ? "\u2191" : "\u2193"}</span>}
+                    </TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <div className="flex items-center justify-between mt-4">
+                </TableHeader>
+                <TableBody>
+                  {filteredCustomers?.map((customer) => (
+                    <TableRow key={customer._id}>
+                      <TableCell className="font-medium">{customer.fullName}</TableCell>
+                      <TableCell>{customer.email}</TableCell>
+                      <TableCell>{customer.phone}</TableCell>
+                      <TableCell>{customer.city}</TableCell>
+                      <TableCell className="flex gap-2">
+                        <Button onClick={() => handleEdit(customer._id)} className="bg-green-700">Edit</Button>
+                        <Button onClick={() => handleDelete(customer._id)} className="bg-red-600">Delete</Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-4">
               <div className="text-sm text-muted-foreground">
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, customers?.length)} of {customers?.length} entries
               </div>
-              <div className="flex justify-center">
+              <div className="flex items-center gap-2">
                 <PaginationPrevious onClick={() => handlePageChange(page - 1)} />
                 <PaginationContent>
                   {Array.from({ length: totalPages }, (_, i) => (
