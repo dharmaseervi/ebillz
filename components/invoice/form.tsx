@@ -85,6 +85,7 @@ export default function Form() {
         totalAmount: 0,
     });
     const [isFocused, setIsFocused] = useState(false);
+    const [isFocusedCName, setIsFocusedCName] = useState(false);
     const [customerSearch, setCustomerSearch] = useState('');
     const [searchResults, setSearchResults] = useState<Customer[]>([]);
     const [showAddCustomerForm, setShowAddCustomerForm] = useState(false);
@@ -243,11 +244,13 @@ export default function Form() {
     const handleSelectCustomer = (customer: Customer) => {
         setFormData({
             ...formData,
-            customerName: customer.fullName,
+            customerName: customer.fullName || '',
             customerId: customer._id,
         });
         setCustomerAddress(`${customer.address}, ${customer.city}, ${customer.state}, ${customer.zip}`);
         setCustomerDetails(customer);
+        setCustomerSearch(customer.fullName);
+        setIsFocusedCName(false);
         setSearchResults([]);
     };
 
@@ -256,6 +259,19 @@ export default function Form() {
         setCustomerSearch('');
         setSearchResults([]);
     };
+    useEffect(() => {
+        // Handle external click to close the dropdown
+        const handleClickOutside = (event: any) => {
+            if (event.target.closest('.relative') === null) {
+                setIsFocusedCName(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleCancelAddCustomer = () => {
         setShowAddCustomerForm(false);
@@ -403,6 +419,7 @@ export default function Form() {
         router.push('/dashboard/invoices/previewandprint');
     };
 
+
     return (
         <div className="max-w-full mx-auto p-6">
             <h2 className="text-3xl font-bold mb-6 text-gray-800">Create Invoice</h2>
@@ -411,32 +428,45 @@ export default function Form() {
                     <div className="">
                         <div className="relative">
                             <label htmlFor="customerName" className="block font-medium">Customer Name</label>
-                            <Input
+                            <input
                                 type="text"
                                 name="customerName"
                                 value={customerSearch}
                                 onChange={handleCustomerSearch}
+                                onFocus={() => setIsFocusedCName(true)}
+                                onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                                 className="w-full border border-gray-300 p-2 rounded"
-                                onBlur={() => setTimeout(() => setIsFocused(false), 100)}
                                 autoComplete='off'
+                                placeholder="Search for a customer..."
                             />
-                            {searchResults.length > 0 && (
-                                <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded shadow-lg">
-                                    {searchResults.map((customer) => (
+                            {isFocusedCName &&    (
+                                <ul
+                                    role="listbox"
+                                    className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded shadow-lg"
+                                >
+                                    {searchResults.length > 0 ? (
+                                        searchResults.map((customer) => (
+                                            <li
+                                                key={customer._id}
+                                                role="option"
+                                                onClick={() => handleSelectCustomer(customer)}
+                                                className="p-2 cursor-pointer hover:bg-gray-100"
+                                            >
+                                                {customer.fullName}
+                                            </li>
+                                        ))
+                                    ) : (
+                                        <li className="p-2 text-gray-500">No customers found</li>
+                                    )}
+                                    {/* Display 'Add new customer' option only if search results are empty */}
+                                    {searchResults.length === 0 && (
                                         <li
-                                            key={customer._id}
-                                            onClick={() => handleSelectCustomer(customer)}
-                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                            onClick={handleAddNewCustomer}
+                                            className="p-2 cursor-pointer hover:bg-gray-100 text-blue-500"
                                         >
-                                            {customer.fullName}
+                                            + Add new customer
                                         </li>
-                                    ))}
-                                    <li
-                                        onClick={handleAddNewCustomer}
-                                        className="p-2 cursor-pointer hover:bg-gray-100 text-blue-500"
-                                    >
-                                        + Add new customer
-                                    </li>
+                                    )}
                                 </ul>
                             )}
                         </div>
@@ -458,7 +488,7 @@ export default function Form() {
                         </div>
 
                         {customerAddress && (
-                            <div className="border mt-2 rounded bg-gray-100">
+                            <div className="border mt-2 rounded bg-gray-100 p-4">
                                 <p className='text-md text-black uppercase font-medium'>{customerDetails?.fullName}</p>
                                 <p className='text-sm text-black capitalize'>{customerAddress}</p>
                                 <p className='text-sm text-black capitalize'>GST No: URP</p>
@@ -467,6 +497,7 @@ export default function Form() {
                                 <p className='text-sm text-black capitalize'>Mobile: {customerDetails?.phone}</p>
                             </div>
                         )}
+
                     </div>
                     <div className="">
                         <label htmlFor="invoiceNumber" className="block font-medium">Invoice Number</label>
@@ -602,10 +633,10 @@ export default function Form() {
                                             handleChangeRow(index, {
                                                 target: {
                                                     name: 'tax',
-                                                    value, 
+                                                    value,
                                                 },
                                             } as unknown as React.ChangeEvent<HTMLInputElement>)
-                                        } 
+                                        }
                                     >
                                         <SelectTrigger className="w-[100px]">
                                             <SelectValue placeholder="Tax %" />
